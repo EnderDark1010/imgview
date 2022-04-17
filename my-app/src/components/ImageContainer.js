@@ -24,7 +24,7 @@ export default class ImageContainer extends React.Component {
  
 
     toImgLink(){
-      return 'data:image/'+this.props.type+';base64,'+this.props.img;
+      return this.props.img;
     }
 
 

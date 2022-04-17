@@ -10,7 +10,6 @@ const api = axios.create({
 //https://stackoverflow.com/questions/23945494/use-html5-to-resize-an-image-before-upload
 
 //used to upload an image to the database
-
 const compress = new Compress();
 export default class Upload extends React.Component {
   constructor() {
