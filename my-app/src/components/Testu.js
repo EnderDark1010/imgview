@@ -18,46 +18,56 @@ const api = axios.create({
 const compress = new Compress();
 export default class TestU extends React.Component {
 
-  constructor(){
+  constructor() {
     super();
     this.resize = this.resize.bind(this);
   }
   state = {
     file: null,
-    base64URL: "",
-    resizedImg:""
+    base64URL: '',
+    resizedImg: '',
+    tags:'',
   };
 
   handleUpload(e) {
-    const url=""
+    const url = ""
     const formData = new FormData();
     const config = {
-      header : {
-        'Content-Type' : 'multipart/form-data'
+      header: {
+        'Content-Type': 'multipart/form-data'
       },
-      auth:{
-        username:'master',
-        password:'master'
+      auth: {
+        username: 'master',
+        password: 'master'
       }
     }
 
-      const img = this.dataURIToBlob(this.state.base64URL);
-      const imgS = this.dataURIToBlob(this.state.resizedImg);
-      formData.append('img',img);
-      formData.append('imgsm',imgS)
+    const img = this.dataURIToBlob(this.state.base64URL);
+    const imgS = this.dataURIToBlob(this.state.resizedImg);
+    formData.append('img', img);
+    formData.append('imgsm', imgS)
+    /*
+          api.post(url,{
+            'img':this.state.base64URL.split(',')[1],
+            'imgsm':this.state.resizedImg.split(',')[1],
+            'prefix':this.state.base64URL.split(',')[0],
+            'prefixs':this.state.resizedImg.split(',')[0],
+            'tags':this.state.tags
+          },config).then(response => {
+            console.log('response', response)
+          }).catch(error => {
+            console.log('error', error)
+          })
+    */
+          api.post('/bin',{
+            'bin':''
+          },config).then(response => {
+            console.log('response', response)
+          }).catch(error => {
+            console.log('error', error)
+          })
 
-      api.post(url,{
-        'img':this.state.base64URL,
-        'imgsm':this.state.resizedImg
-      },config).then(response => {
-        console.log('response', response)
-      }).catch(error => {
-        console.log('error', error)
-      })
-
-console.log( atob(this.state.base64URL.split(',')[1]));
-     
-    }
+  }
 
   dataURIToBlob = (dataURI) => {
     const splitDataURI = dataURI.split(",");
@@ -71,7 +81,7 @@ console.log( atob(this.state.base64URL.split(',')[1]));
     return new Blob([ia], { type: mimeString });
   };
 
-  resize(image){
+  resize(image) {
     try {
       Resizer.imageFileResizer(
         image,
@@ -109,7 +119,7 @@ console.log( atob(this.state.base64URL.split(',')[1]));
   };
 
   handleFiles = e => {
-    let  file  = this.state;
+    let file = this.state;
     file = e.target.files[0];
     this.getBase64(file)
       .then(result => {
@@ -124,9 +134,9 @@ console.log( atob(this.state.base64URL.split(',')[1]));
       });
 
 
-      
-      this.resize(e.target.files[0]);
-      
+
+    this.resize(e.target.files[0]);
+
     this.setState({
       file: e.target.files[0]
     });

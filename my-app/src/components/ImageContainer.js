@@ -24,8 +24,9 @@ export default class ImageContainer extends React.Component {
  
 
     toImgLink(){
-      return this.props.img;
+      return this.props.prefix + ','+ this.props.img;
     }
+
 
 
   }

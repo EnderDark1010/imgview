@@ -37,7 +37,7 @@ export default class PageContainer extends React.Component {
             return (
               <div className="row items__row" key={row}>
                 {rows[row].map(item => {
-                  return <Col><ImageContainer img={item.img} id={item.id} score={item.score} type={item.type}/></Col>;
+                  return <Col><ImageContainer img={item.img} id={item.id} score={item.score} prefix={item.prefixs}/></Col>;
                 })}
               </div>
             );
@@ -46,19 +46,7 @@ export default class PageContainer extends React.Component {
     </div>
     }
 
-    to2DArray(){
-      let array =[];
-      let i = 0;
-      this.state.images.forEach((element,index) => {
-        if(index%4==0){
-          array.push([]);
-          i++;
-        }
-        array[i-1].push(element);
-
-      });
-      return array;
-    }
+  
     toList(){
       let rows = {};
       let counter = 1;
