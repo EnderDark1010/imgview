@@ -1,7 +1,4 @@
-import { type } from '@testing-library/user-event/dist/type';
-import { wait } from '@testing-library/user-event/dist/utils';
 import React from 'react';
-import Buffer from 'buffer'
   
    
 //displays image,id,score, button that increases score
@@ -13,22 +10,36 @@ const element = <Welcome name="Sara" />;
 export default class ImageContainer extends React.Component {
     constructor(props){
         super(props);
+        this.state ={isClicked:false};
+        this.handleClick =this.handleClick.bind(this);
+    }
+    state={
+      isClicked:false
     }
     render() {
- 
+      let modal;
+      if(this.state.isClicked){
+        modal=<div className='modal'><img className='full-img' onClick={this.handleClick} src={'data:'+ this.props.prefix + ';base64,'+ this.props.img} /></div>
+      }else{
+          modal=''
+      }
+
       return <div className='img-container'>
-        <img className='img-class' src={this.toImgLink()} />
-      </div>;
+        <img onClick={this.handleClick} className='img-class' src={this.toImgLink()} />
+        {modal}
+      </div>
+      ;
     }
 
+    handleClick(){
+     this.setState({isClicked:!this.state.isClicked});
+      console.log(this.state.isClicked);
+    }
  
 
     toImgLink(){
-      return this.props.prefix + ','+ this.props.img;
+      return 'data:'+ this.props.prefix + ';base64,'+ this.props.imgsm;
     }
-
-
-
   }
 
   //

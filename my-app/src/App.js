@@ -5,14 +5,10 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
 import {Container} from 'react-bootstrap'
 import Upload from './components/Upload';
-import TestU from './components/Testu';
-import Base64 from './components/Base64';
 function App() {
   return (
     <div className="App">
       <Container fluid>
-      <TestU/>
-
       <PageContainer/>
       
 

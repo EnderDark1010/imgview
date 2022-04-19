@@ -21,7 +21,7 @@ export default class PageContainer extends React.Component {
         }).then(res=>{
           this.setState({images: res.data})
         })
-        
+    
     }
     state ={
       images:[]
@@ -29,6 +29,7 @@ export default class PageContainer extends React.Component {
 //todo try to wrap row around image container :36
 
     render() {
+      this.shuffle(this.state.images);
       let rows = this.toList();
       return <div className="fullSize">
 
@@ -37,7 +38,7 @@ export default class PageContainer extends React.Component {
             return (
               <div className="row items__row" key={row}>
                 {rows[row].map(item => {
-                  return <Col><ImageContainer img={item.img} id={item.id} score={item.score} prefix={item.prefixs}/></Col>;
+                  return <Col><ImageContainer key={item.id} img={item.img} imgsm={item.imgsm} id={item.id} score={item.score} prefix={item.prefixs}/></Col>;
                 })}
               </div>
             );
@@ -52,7 +53,7 @@ export default class PageContainer extends React.Component {
       let counter = 1;
       this.state.images.forEach((item, idx) => {
         rows[counter] = rows[counter] ? [...rows[counter]] : [];
-        if (idx % 4 === 0 && idx !== 0) {
+        if (idx % 2 === 0 && idx !== 0) {
           counter++;
           rows[counter] = rows[counter] ? [...rows[counter]] : [];
           rows[counter].push(item);
@@ -63,5 +64,23 @@ export default class PageContainer extends React.Component {
       return rows;
     }
     
+    shuffle(array) {
+      let currentIndex = array.length,  randomIndex;
+    
+      // While there remain elements to shuffle.
+      while (currentIndex != 0) {
+    
+        // Pick a remaining element.
+        randomIndex = Math.floor(Math.random() * currentIndex);
+        currentIndex--;
+    
+        // And swap it with the current element.
+        [array[currentIndex], array[randomIndex]] = [
+          array[randomIndex], array[currentIndex]];
+      }
+    
+      return array;
+    }
+
   }
   
