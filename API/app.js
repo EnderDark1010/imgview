@@ -1,8 +1,8 @@
 //https://www.youtube.com/watch?v=f5kye3ESXE8
-
 const express = require('express')
 const bodyParser = require('body-parser')
 const mysql = require('mysql')
+const cors = require('cors')
 const app = express()
 
 const port = process.env.PORT || 5000
@@ -26,10 +26,26 @@ app.get('', (req, res) => {
     pool.getConnection((err, connection) => {
         if (err) throw err
 
-        connection.query('SELECT id, score, prefix ,prefixs, TO_BASE64(img) as img ,TO_BASE64(imgsm) as imgsm from image;', (err, rows) => {
+        connection.query('SELECT id, score ,prefixs ,TO_BASE64(imgsm) as imgsm from image;', (err, rows) => {
             connection.release()
             if (!err) {
                 res.send(rows);
+            }
+        })
+    })
+})
+
+app.get('/img/:id', (req, res) => {
+    let id=req.params.id;
+    pool.getConnection((err, connection) => {
+        if (err) throw err
+
+        connection.query(`SELECT prefix, TO_BASE64(img) as img FROM image WHERE id=${id}`, (err, rows) => {
+            connection.release()
+            if (!err) {
+                res.send(rows);
+            }else{
+                res.send(err);
             }
         })
     })
