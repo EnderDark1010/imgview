@@ -1,0 +1,5 @@
+todo:
+when image is clicked-> pop out img big size
+fix image upload in php -> make img not loose color using https://www.php.net/manual/en/imagick.resizeimage.php
+add tag  to php upload form -> need to be seperated by comma and ; for images
+try to pass data through react to php and send it there
