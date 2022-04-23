@@ -29,8 +29,6 @@
   color: #61dafb;
 }
 
-
-
 html{
   height: 100%;
 }
@@ -53,6 +51,7 @@ body{
   /*grid-template-columns: repeat(auto-fit, minmax(400px,1fr));*/
   min-height: 100vh;
   grid-gap:2rem;
+  flex: 4.5;
 }
 
 .img-container{
@@ -83,3 +82,32 @@ body{
   transform: translate(-50%,-50%);
 }
 
+.nav{
+  flex: 0.5;
+  background-color: rgb(147, 147, 147);
+}
+
+.page{
+  display: flex;
+  margin: 2rem;
+  grid-gap: 1rem;
+}
+
+.pageContainer{
+  outline: none;
+  height: 100%;
+}
+
+li{
+ margin: 2rem 2rem 0 1rem;
+}
+
+ul{
+  list-style-type:none;
+  text-align: start;
+  padding: 0;
+}
+
+.pageElement{
+  width: 50%;
+}

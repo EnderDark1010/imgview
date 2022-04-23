@@ -8,10 +8,10 @@ const app = express()
 const port = process.env.PORT || 5000
 app.use(cors())
 
-app.use(bodyParser.json({ limit: '50mb' }));
-app.use(bodyParser.urlencoded({ extended: true, limit: '50mb' }))
+app.use(bodyParser.json({ limit: '500mb' }));
+app.use(bodyParser.urlencoded({ extended: true, limit: '500mb' }))
 
-
+const imagesPerPage = 50;
 // my sql
 const pool = mysql.createPool({
     connectionLimit: 10,
@@ -21,6 +21,12 @@ const pool = mysql.createPool({
     database: 'imgviever',
 })
 
+
+
+
+/*
+Handle get requests
+*/
 //get all entries
 app.get('', (req, res) => {
     pool.getConnection((err, connection) => {
@@ -35,8 +41,23 @@ app.get('', (req, res) => {
     })
 })
 
-app.get('/img/:id', (req, res) => {
-    let id=req.params.id;
+//get all entries
+app.get('/sortall', (req, res) => {
+    pool.getConnection((err, connection) => {
+        if (err) throw err
+
+        connection.query('SELECT id, score ,prefixs ,TO_BASE64(imgsm) as imgsm from image ORDER  BY score DESC, RAND() ', (err, rows) => {
+            connection.release()
+            if (!err) {
+                res.send(rows);
+            }
+        })
+    })
+})
+
+//get full image by id
+app.get('/img/id/:id', (req, res) => {
+    let id = req.params.id;
     pool.getConnection((err, connection) => {
         if (err) throw err
 
@@ -44,7 +65,143 @@ app.get('/img/:id', (req, res) => {
             connection.release()
             if (!err) {
                 res.send(rows);
-            }else{
+            } else {
+                res.send(err);
+            }
+        })
+    })
+})
+
+//get images for page
+app.get('/img/page/:page', (req, res) => {
+    let page = req.params.page;
+    pool.getConnection((err, connection) => {
+        if (err) throw err
+        connection.query(`SELECT id, score ,prefixs ,TO_BASE64(imgsm) as imgsm FROM image ORDER BY id DESC  LIMIT ${page * imagesPerPage-50},${page * imagesPerPage}`, (err, rows) => {
+            connection.release()
+            if (!err) {
+                res.send(rows);
+            } else {
+                res.send(err);
+            }
+        })
+    })
+})
+
+//get images for page order Score 1000->0
+app.get('/score/up/:page', (req, res) => {
+    let page = req.params.page;
+    pool.getConnection((err, connection) => {
+        if (err) throw err
+        connection.query(`SELECT id, score ,prefixs ,TO_BASE64(imgsm) as imgsm FROM image ORDER BY score ASC LIMIT ${page * imagesPerPage-50},${page * imagesPerPage}`, (err, rows) => {
+            connection.release()
+            if (!err) {
+                res.send(rows);
+            } else {
+                console.log(err);
+            }
+        })
+    })
+})
+
+//get images for page order Score ascending 0->1000
+app.get('/score/down/:page', (req, res) => {
+    let page = req.params.page;
+    pool.getConnection((err, connection) => {
+        if (err) throw err
+        connection.query(`SELECT id, score ,prefixs ,TO_BASE64(imgsm) as imgsm FROM image ORDER BY score DESC LIMIT ${page * imagesPerPage-50},${page * imagesPerPage}`, (err, rows) => {
+            connection.release()
+            if (!err) {
+                res.send(rows);
+            } else {
+                res.send(err);
+            }
+        })
+    })
+})
+
+//get img random
+app.get('/random', (req, res) => {
+    pool.getConnection((err, connection) => {
+        if (err) throw err
+        connection.query(`SELECT id, score ,prefixs ,TO_BASE64(imgsm) as imgsm FROM image ORDER BY RAND() LIMIT ${page * imagesPerPage-50},${page * imagesPerPage}`, (err, rows) => {
+            connection.release()
+            if (!err) {
+                res.send(rows);
+            } else {
+                res.send(err);
+            }
+        })
+    })
+})
+
+app.get('/query/:tags/:page', (req, res) => {
+    let page = req.params.page;
+    let tagString = req.params.tags;
+    let tags = tagString.split(',');
+    let SqlQuery = `SELECT id, score ,prefixs ,TO_BASE64(imgsm) as imgsm FROM image WHERE (`;
+    let i=0;
+    tags.map(tag =>{
+        SqlQuery+=`tags LIKE '%${tag}%'`;
+        i++;
+        if(i!=tags.length){
+            SqlQuery+=' AND ';
+        }
+    });
+    SqlQuery+=`)`;
+    console.log(SqlQuery);
+
+    pool.getConnection((err, connection) => {
+        if (err) throw err
+        connection.query(SqlQuery+ ` LIMIT ${page * imagesPerPage-50},${page * imagesPerPage}`, (err, rows) => {
+            connection.release()
+            if (!err) {
+                res.send(rows);
+            } else {
+                console.log(err);
+            }
+        })
+    })
+})
+
+
+
+
+
+
+
+
+
+/*
+Handle Score updates
+*/
+//add score
+app.post('/plusscore/:id', (req, res) => {
+    let id = req.params.id;
+
+    pool.getConnection((err, connection) => {
+        if (err) throw err
+
+        connection.query(`UPDATE image SET score = score + 1 WHERE id = ${id}`, (err, rows) => {
+            connection.release()
+            if (!err) {
+                res.send(rows);
+            } else {
+                res.send(err);
+            }
+        })
+    })
+})
+//remove score
+app.post('/minusscore/:id', (req, res) => {
+    let id = req.params.id;
+    pool.getConnection((err, connection) => {
+        if (err) throw err
+        connection.query(`UPDATE image SET score = IF(score!=0,score-1,score) WHERE id = ${id}`, (err, rows) => {
+            connection.release()
+            if (!err) {
+                res.send(rows);
+            } else {
                 res.send(err);
             }
         })

@@ -10,7 +10,9 @@ const element = <Welcome name="Sara" />;
 export default class ImageContainer extends React.Component {
     constructor(props){
         super(props);
-        this.state ={isClicked:false};
+        this.state ={score:this.props.score};
+        this.plus = this.plus.bind(this);
+        this.minus = this.minus.bind(this);
     }
 
     render() {
@@ -18,11 +20,28 @@ export default class ImageContainer extends React.Component {
 
       return <div className='img-container'>
         <img onClick={()=>this.props.onClick(this.props.id)}  src={this.toImgLink()} />
+        
+        <div>
+          <button onClick={this.minus}>-</button>
+          &nbsp;&nbsp;
+          Score({this.state.score})
+          &nbsp;&nbsp;
+          <button onClick={this.plus}>+</button></div>
+        
       </div>
       ;
     }
 
-
+    plus(){
+      this.props.onButtonClick(this.props.id,true);
+      this.setState({score:this.state.score+1});
+    }
+    minus(){
+      if(this.state.score !=0){
+        this.props.onButtonClick(this.props.id,false);
+        this.setState({score:this.state.score-1});
+      }
+    }
     toImgLink(){
       return 'data:'+ this.props.prefix + ';base64,'+ this.props.imgsm;
     }

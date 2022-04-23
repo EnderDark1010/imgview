@@ -10,37 +10,30 @@ const api = axios.create({
 
 export default class PageContainer extends React.Component {
 
-
   constructor() {
     super();
-    api.get('/', {}, {
-      auth: {
-        username: 'master',
-        password: 'master'
-      }
-    }).then(res => {
-      this.setState({ images: res.data })
-
-    })
     this.handleImgClick = this.handleImgClick.bind(this);
     this.removeImg = this.removeImg.bind(this);
-    this.clickRandomize= this.clickRandomize.bind(this);
-    this.setState({ renderNum: 0 })
+    this.clickRandomize = this.clickRandomize.bind(this);
+    this.handleInput = this.handleInput.bind(this);
+    this.nextPage = this.nextPage.bind(this);
+    this.lastPage = this.lastPage.bind(this);
+    this.clickSortScore = this.clickSortScore.bind(this);
   }
   state = {
     images: [],
     isClicked: false,
     ActiveImageSrc: '',
-    renderNum: 0
+    search: '',
+    pageNumber: 1,
+    currentImgEndpoint:''
   }
-  //todo try to wrap row around image container :36
+
+  componentDidMount() {
+
+  }
 
   render() {
-    if (this.state.renderNum == 0) {
-      this.shuffle(this.state.images);
-      this.setState({ renderNum: 1 });
-    }
-
     let modal;
     if (this.state.isClicked) {
       modal = <div className='modal' onClick={this.removeImg}>
@@ -50,21 +43,77 @@ export default class PageContainer extends React.Component {
     else {
       modal = '';
     }
-    return <div>
+    return <div className='pageContainer' tabIndex="0" onKeyDown={this.handleInput}>
       {modal}
-      <button onClick={this.clickRandomize}>Randomize</button>
-      <div className="gallery">
-        {this.state.images.map(item => {
-          return <ImageContainer key={item.id} imgsm={item.imgsm} id={item.id} score={item.score} prefix={item.prefixs} onClick={this.handleImgClick} />;
-        })}
+      <div className='page'>
+        <div className='nav'>
+          <ul>
+            <li><div className='navbarElement'><input type='text' placeholder='tag1,tag2,....'></input></div></li>
+            <li>
+              <div className='navbarElement'>
+                <button onClick={this.lastPage}>&lt;-</button>
+                <input onChange={this.handlePageNumberChange} className='pageElement' type='text' placeholder='pagenumber' value={this.state.pageNumber}></input>
+                <button onClick={this.nextPage}>-&gt;</button>
+              </div>
+            </li>
+            <li><div className='navbarElement'><button onClick={'next page'}>Randomize</button></div></li>
+            <li><div className='navbarElement'><button onClick={this.clickRandomize}>Randomize page order</button></div></li>
+            <li><div className='navbarElement'><button onClick={this.clickSortScore}>Sort:score</button></div></li>
+            <li><div className='navbarElement'><button onClick={''}>New to Old</button></div></li>
+            <li><div className='navbarElement'><button onClick={''}>Old to new</button></div></li>
+          </ul>
+        </div>
+
+        <div className="gallery">
+          {this.state.images.map(item => {
+            return <ImageContainer key={item.id} imgsm={item.imgsm} id={item.id} score={item.score} prefix={item.prefixs} onClick={this.handleImgClick} onButtonClick={this.handleScore} />;
+          })}
+        </div>
       </div>
-    </div>;
-
-  }
-  clickRandomize(){
-   this.setState({images:this.shuffle(this.state.images)}) ;
+    </div>
   }
 
+
+
+
+
+  //Button Functions
+  clickRandomize() {
+    this.setState({ images: this.shuffle(this.state.images) });
+  }
+  clickSortScore(){
+    console.log('sort score')
+    console.log(`/score/down/${this.state.pageNumber}`);
+    api.get(`/score/down/${this.state.pageNumber}`, {}, {
+      auth: {
+        username: 'master',
+        password: 'master'
+      }
+    }).then(res => {
+      this.setState({
+        images: res.data,
+        currentImgEndpoint:'sortscore' })
+    })
+  }
+
+  //HandlePages
+  lastPage() {
+    console.log('click')
+    console.log(this.state.pageNumber);
+    if (this.state.pageNumber != 1) {
+      this.setState({ pageNumber: this.state.pageNumber - 1 });
+    }
+  }
+  nextPage() {
+    this.setState({ pageNumber: this.state.pageNumber + 1 });
+  }
+  handlePageNumberChange(){
+    
+  }
+
+
+
+  //MODAL SHIT
   removeImg() {
     this.setState({
       isClicked: false,
@@ -74,7 +123,7 @@ export default class PageContainer extends React.Component {
   handleImgClick(id) {
     console.log(id);
     this.setState({ isClicked: true });
-    api.get('/img/' + id, {}, {
+    api.get('/img/id/' + id, {}, {
       auth: {
         username: 'master',
         password: 'master'
@@ -86,22 +135,35 @@ export default class PageContainer extends React.Component {
 
     })
   }
-  toList() {
-    let rows = {};
-    let counter = 1;
-    this.state.images.forEach((item, idx) => {
-      rows[counter] = rows[counter] ? [...rows[counter]] : [];
-      if (idx % 2 === 0 && idx !== 0) {
-        counter++;
-        rows[counter] = rows[counter] ? [...rows[counter]] : [];
-        rows[counter].push(item);
-      } else {
-        rows[counter].push(item);
-      }
-    });
-    return rows;
+  handleInput(event) {
+    if (event.key === 'Escape') {
+      this.removeImg();
+    } else {
+      console.log(event.key);
+    }
+  }
+  handleScore(id, addBool) {
+    if (addBool) {
+      api.post('/plusscore/' + id, {}, {
+        auth: {
+          username: 'master',
+          password: 'master'
+        }
+      })
+    } else {
+      api.post('/minusscore/' + id, {}, {
+        auth: {
+          username: 'master',
+          password: 'master'
+        }
+      })
+    }
+
+
   }
 
+
+  //Regular functions
   shuffle(array) {
     let currentIndex = array.length, randomIndex;
 
