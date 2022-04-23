@@ -73,11 +73,26 @@ app.get('/img/id/:id', (req, res) => {
 })
 
 //get images for page
-app.get('/img/page/:page', (req, res) => {
+app.get('/img/page/newfirst/:page', (req, res) => {
     let page = req.params.page;
     pool.getConnection((err, connection) => {
         if (err) throw err
         connection.query(`SELECT id, score ,prefixs ,TO_BASE64(imgsm) as imgsm FROM image ORDER BY id DESC  LIMIT ${page * imagesPerPage-50},${page * imagesPerPage}`, (err, rows) => {
+            connection.release()
+            if (!err) {
+                res.send(rows);
+            } else {
+                res.send(err);
+            }
+        })
+    })
+})
+//get images for page
+app.get('/img/page/oldfirst/:page', (req, res) => {
+    let page = req.params.page;
+    pool.getConnection((err, connection) => {
+        if (err) throw err
+        connection.query(`SELECT id, score ,prefixs ,TO_BASE64(imgsm) as imgsm FROM image ORDER BY id asc LIMIT ${page * imagesPerPage-50},${page * imagesPerPage}`, (err, rows) => {
             connection.release()
             if (!err) {
                 res.send(rows);
@@ -135,6 +150,7 @@ app.get('/random', (req, res) => {
     })
 })
 
+//for tags(seperated by ,)
 app.get('/query/:tags/:page', (req, res) => {
     let page = req.params.page;
     let tagString = req.params.tags;
