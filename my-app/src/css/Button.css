@@ -1,0 +1,24 @@
+
+button {
+
+   
+    border: none;
+    border-radius: 16px;
+    box-shadow: 0 0 20px #ab65bc, -2px 1px 13px #de21f3, 0 0 18px #f32191;
+    background: #f32191;
+}
+button:hover{
+    background: #2196f3;
+    box-shadow:0 0 5px #2196f3, 0 0 40px #2196f3, 0 0 80px #2196f3;
+}
+
+input{
+    box-shadow: 0 0 20px #ab65bc, -2px 1px 13px #de21f3, 0 0 18px #f32191;
+    background: #f32191;
+     border: none;
+    border-radius: 16px;
+}
+img{
+    box-shadow: 0 0 20px #ab65bc, -2px 1px 13px #de21f3, 0 0 18px #f32191;
+    border-radius: 16px;
+}
