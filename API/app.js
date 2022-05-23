@@ -77,7 +77,7 @@ app.get('/img/page/newfirst/:page', (req, res) => {
     let page = req.params.page;
     pool.getConnection((err, connection) => {
         if (err) throw err
-        connection.query(`SELECT id, score ,prefixs ,TO_BASE64(imgsm) as imgsm FROM image ORDER BY id DESC  LIMIT ${page * imagesPerPage-50},${page * imagesPerPage}`, (err, rows) => {
+        connection.query(`SELECT id, score ,prefixs ,TO_BASE64(imgsm) as imgsm FROM image ORDER BY id DESC  LIMIT ${page * imagesPerPage-50},${imagesPerPage}`, (err, rows) => {
             connection.release()
             if (!err) {
                 res.send(rows);
@@ -92,7 +92,7 @@ app.get('/img/page/oldfirst/:page', (req, res) => {
     let page = req.params.page;
     pool.getConnection((err, connection) => {
         if (err) throw err
-        connection.query(`SELECT id, score ,prefixs ,TO_BASE64(imgsm) as imgsm FROM image ORDER BY id asc LIMIT ${page * imagesPerPage-50},${page * imagesPerPage}`, (err, rows) => {
+        connection.query(`SELECT id, score ,prefixs ,TO_BASE64(imgsm) as imgsm FROM image ORDER BY id asc LIMIT ${page * imagesPerPage-50},${imagesPerPage}`, (err, rows) => {
             connection.release()
             if (!err) {
                 res.send(rows);
@@ -108,7 +108,7 @@ app.get('/score/up/:page', (req, res) => {
     let page = req.params.page;
     pool.getConnection((err, connection) => {
         if (err) throw err
-        connection.query(`SELECT id, score ,prefixs ,TO_BASE64(imgsm) as imgsm FROM image ORDER BY score ASC LIMIT ${page * imagesPerPage-50},${page * imagesPerPage}`, (err, rows) => {
+        connection.query(`SELECT id, score ,prefixs ,TO_BASE64(imgsm) as imgsm FROM image ORDER BY score ASC LIMIT ${page * imagesPerPage-50},${imagesPerPage}`, (err, rows) => {
             connection.release()
             if (!err) {
                 res.send(rows);
@@ -124,7 +124,7 @@ app.get('/score/down/:page', (req, res) => {
     let page = req.params.page;
     pool.getConnection((err, connection) => {
         if (err) throw err
-        connection.query(`SELECT id, score ,prefixs ,TO_BASE64(imgsm) as imgsm FROM image ORDER BY score DESC LIMIT ${page * imagesPerPage-50},${page * imagesPerPage}`, (err, rows) => {
+        connection.query(`SELECT id, score ,prefixs ,TO_BASE64(imgsm) as imgsm FROM image ORDER BY score DESC LIMIT ${page * imagesPerPage-50},${imagesPerPage}`, (err, rows) => {
             connection.release()
             if (!err) {
                 res.send(rows);
@@ -139,7 +139,7 @@ app.get('/score/down/:page', (req, res) => {
 app.get('/random', (req, res) => {
     pool.getConnection((err, connection) => {
         if (err) throw err
-        connection.query(`SELECT id, score ,prefixs ,TO_BASE64(imgsm) as imgsm FROM image ORDER BY RAND() LIMIT ${page * imagesPerPage-50},${page * imagesPerPage}`, (err, rows) => {
+        connection.query(`SELECT id, score ,prefixs ,TO_BASE64(imgsm) as imgsm FROM image ORDER BY RAND() LIMIT ${page * imagesPerPage-50},${imagesPerPage}`, (err, rows) => {
             connection.release()
             if (!err) {
                 res.send(rows);
@@ -150,26 +150,31 @@ app.get('/random', (req, res) => {
     })
 })
 
-//for tags(seperated by ,)
+//Querys(seperated by ,)
 app.get('/query/:tags/:page', (req, res) => {
     let page = req.params.page;
     let tagString = req.params.tags;
     let tags = tagString.split(',');
-    let SqlQuery = `SELECT id, score ,prefixs ,TO_BASE64(imgsm) as imgsm FROM image WHERE (`;
-    let i=0;
-    tags.map(tag =>{
-        SqlQuery+=`tags LIKE '%${tag}%'`;
-        i++;
-        if(i!=tags.length){
-            SqlQuery+=' AND ';
-        }
-    });
-    SqlQuery+=`)`;
-    console.log(SqlQuery);
+    let SqlQuery;
+    if(tagString==='none'){
+        SqlQuery = `SELECT id, score ,prefixs ,TO_BASE64(imgsm) as imgsm FROM image WHERE (tags LIKE '%')`
+    }else{
+        SqlQuery = `SELECT id, score ,prefixs ,TO_BASE64(imgsm) as imgsm FROM image WHERE (`;
+        let i=0;
+        tags.map(tag =>{
+            SqlQuery+=`tags LIKE '%,${tag},%'`;
+            i++;
+            if(i!=tags.length){
+                SqlQuery+=' AND ';
+            }
+        });
+        SqlQuery+=`)`;
+    }
+    
 
     pool.getConnection((err, connection) => {
         if (err) throw err
-        connection.query(SqlQuery+ ` LIMIT ${page * imagesPerPage-50},${page * imagesPerPage}`, (err, rows) => {
+        connection.query(SqlQuery+ ` LIMIT ${page * imagesPerPage-50},${imagesPerPage}`, (err, rows) => {
             connection.release()
             if (!err) {
                 res.send(rows);
@@ -180,13 +185,141 @@ app.get('/query/:tags/:page', (req, res) => {
     })
 })
 
+app.get('/query/scoredown/:tags/:page', (req, res) => {
+    let page = req.params.page;
+    let tagString = req.params.tags;
+    let tags = tagString.split(',');
+    let SqlQuery;
+    if(tagString==='none'){
+        SqlQuery = `SELECT id, score ,prefixs ,TO_BASE64(imgsm) as imgsm FROM image WHERE (tags LIKE '%')`
+    }else{
+        SqlQuery = `SELECT id, score ,prefixs ,TO_BASE64(imgsm) as imgsm FROM image WHERE (`;
+        let i=0;
+        tags.map(tag =>{
+            SqlQuery+=`tags LIKE '%,${tag},%'`;
+            i++;
+            if(i!=tags.length){
+                SqlQuery+=' AND ';
+            }
+        });
+        SqlQuery+=`)`;
+    }
+    console.log(SqlQuery + `ORDER BY score DESC LIMIT ${page * imagesPerPage-50},${imagesPerPage}`);
 
+    pool.getConnection((err, connection) => {
+        if (err) throw err
+        connection.query(SqlQuery+ `ORDER BY score DESC LIMIT ${page * imagesPerPage-50},${imagesPerPage}`, (err, rows) => {
+            connection.release()
+            if (!err) {
+                res.send(rows);
+            } else {
+                console.log(err);
+            }
+        })
+    })
+})
 
+app.get('/query/scoreup/:tags/:page', (req, res) => {
+    let page = req.params.page;
+    let tagString = req.params.tags;
+    let tags = tagString.split(',');
+    let SqlQuery;
+    if(tagString==='none'){
+        SqlQuery = `SELECT id, score ,prefixs ,TO_BASE64(imgsm) as imgsm FROM image WHERE (tags LIKE '%')`
+    }else{
+        SqlQuery = `SELECT id, score ,prefixs ,TO_BASE64(imgsm) as imgsm FROM image WHERE (`;
+        let i=0;
+        tags.map(tag =>{
+            SqlQuery+=`tags LIKE '%,${tag},%'`;
+            i++;
+            if(i!=tags.length){
+                SqlQuery+=' AND ';
+            }
+        });
+        SqlQuery+=`)`;
+    }
+    
 
+    pool.getConnection((err, connection) => {
+        if (err) throw err
+        connection.query(SqlQuery+ `ORDER BY score ASC LIMIT ${page * imagesPerPage-50},${imagesPerPage}`, (err, rows) => {
+            connection.release()
+            if (!err) {
+                res.send(rows);
+            } else {
+                console.log(err);
+            }
+        })
+    })
+})
 
+app.get('/query/oldfirst/:tags/:page', (req, res) => {
+    let page = req.params.page;
+    let tagString = req.params.tags;
+    let tags = tagString.split(',');
+    let SqlQuery;
+    if(tagString==='none'){
+        SqlQuery = `SELECT id, score ,prefixs ,TO_BASE64(imgsm) as imgsm FROM image WHERE (tags LIKE '%')`
+    }else{
+        SqlQuery = `SELECT id, score ,prefixs ,TO_BASE64(imgsm) as imgsm FROM image WHERE (`;
+        let i=0;
+        tags.map(tag =>{
+            SqlQuery+=`tags LIKE '%,${tag},%'`;
+            i++;
+            if(i!=tags.length){
+                SqlQuery+=' AND ';
+            }
+        });
+        SqlQuery+=`)`;
+    }
+    
 
+    pool.getConnection((err, connection) => {
+        if (err) throw err
+        connection.query(SqlQuery+ `ORDER BY id ASC LIMIT ${page * imagesPerPage-50},${imagesPerPage}`, (err, rows) => {
+            connection.release()
+            if (!err) {
+                res.send(rows);
+            } else {
+                console.log(err);
+            }
+        })
+    })
+})
 
+app.get('/query/newfirst/:tags/:page', (req, res) => {
+    let page = req.params.page;
+    let tagString = req.params.tags;
+    let tags = tagString.split(',');
+    let SqlQuery;
+    if(tagString==='none'){
+        SqlQuery = `SELECT id, score ,prefixs ,TO_BASE64(imgsm) as imgsm FROM image WHERE (tags LIKE '%')`
+    }else{
+        SqlQuery = `SELECT id, score ,prefixs ,TO_BASE64(imgsm) as imgsm FROM image WHERE (`;
+        let i=0;
+        tags.map(tag =>{
+            SqlQuery+=`tags LIKE '%,${tag},%'`;
+            i++;
+            if(i!=tags.length){
+                SqlQuery+=' AND ';
+            }
+        });
+        SqlQuery+=`)`;
+    }
+    
 
+    pool.getConnection((err, connection) => {
+        if (err) throw err
+        connection.query(SqlQuery+ `ORDER BY id DESC LIMIT ${page * imagesPerPage-50},${imagesPerPage}`, (err, rows) => {
+            connection.release()
+            if (!err) {
+                res.send(rows);
+            } else {
+                console.log(err);
+            }
+        })
+    })
+})
 
 /*
 Handle Score updates
@@ -198,7 +331,7 @@ app.post('/plusscore/:id', (req, res) => {
     pool.getConnection((err, connection) => {
         if (err) throw err
 
-        connection.query(`UPDATE image SET score = score + 1 WHERE id = ${id}`, (err, rows) => {
+        connection.query(`UPDATE image SET score = score + ${1+(Math.random()*0.1)} WHERE id = ${id}`, (err, rows) => {
             connection.release()
             if (!err) {
                 res.send(rows);

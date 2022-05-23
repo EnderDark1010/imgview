@@ -7,7 +7,7 @@ Usage:
 const element = <Welcome name="Sara" />;
 */
 
-export default class ImageContainer extends React.Component {
+export default class Image extends React.Component {
     constructor(props){
         super(props);
         this.state ={score:this.props.score};
@@ -21,10 +21,10 @@ export default class ImageContainer extends React.Component {
       return <div className='img-container'>
         <img onClick={()=>this.props.onClick(this.props.id)}  src={this.toImgLink()} />
         
-        <div>
+        <div><br/>
           <button onClick={this.minus}>-</button>
           &nbsp;&nbsp;
-          Score({this.state.score})
+          Score({Math.round(this.state.score)})
           &nbsp;&nbsp;
           <button onClick={this.plus}>+</button></div>
         

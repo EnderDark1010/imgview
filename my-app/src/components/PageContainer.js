@@ -1,13 +1,13 @@
 import React from 'react';
 import axios from 'axios';
-import ImageContainer from './ImageContainer'
+import Image from './Image'
 import { Col } from 'react-bootstrap';
 const api = axios.create({
   baseURL: 'http://localhost:5000',
 })
 //contains a searchbar and  imageContainers
 //once imagecontainer data is base on what is in the searchbar
-
+//https://fsymbols.com/generators/carty/
 export default class PageContainer extends React.Component {
 
   constructor() {
@@ -17,9 +17,12 @@ export default class PageContainer extends React.Component {
     this.handleInput = this.handleInput.bind(this);
     this.nextPage = this.nextPage.bind(this);
     this.lastPage = this.lastPage.bind(this);
-    this.clickSortScore = this.clickSortScore.bind(this);
+    this.clickSortScoreDown = this.clickSortScoreDown.bind(this);
     this.clickSortNewOld = this.clickSortNewOld.bind(this);
     this.clickSortOldNew = this.clickSortOldNew.bind(this);
+    this.updateSerchTags = this.updateSerchTags.bind(this);
+    this.clickSearch = this.clickSearch.bind(this);
+    this.clickSortScoreUp = this.clickSortScoreUp.bind(this);
   }
   state = {
     images: [],
@@ -27,6 +30,7 @@ export default class PageContainer extends React.Component {
     ActiveImageSrc: '',
     search: '',
     pageNumber: 1,
+    tags: ''
   }
   currentImgEndpoint = '';
   pageNumber = 1;
@@ -35,7 +39,6 @@ export default class PageContainer extends React.Component {
     if (this.state.isClicked) {
       modal = <div className='modal' onClick={this.removeImg}>
         <img className='fullImage' src={this.state.ActiveImageSrc} />
-        <div>test</div>
       </div>;
     }
     else {
@@ -48,16 +51,24 @@ export default class PageContainer extends React.Component {
       <div className='page'>
         <div className='nav'>
           <ul>
-            <li><div className='navbarElement'><input type='text' placeholder='tag1,tag2,....'></input><button >Search</button></div></li>
             <li>
               <div className='navbarElement'>
-              <button onClick={this.lastPage}>&lt;-</button>
-                &nbsp;current page: {this.pageNumber}&nbsp;
+                <input type='text' placeholder='tag1,tag2,....' value={this.state.tags} onChange={evt => this.updateSerchTags(evt)}></input>
+              </div>
+            </li>
+            <li><button onClick={this.clickSearch} >Search</button></li>
+            <li>
+              <div className='navbarElement'>
+                <button onClick={this.lastPage}>&lt;&lt;-</button>
+                <button onClick={this.lastPage}>&lt;-</button>
+                &nbsp;{this.pageNumber}&nbsp;
                 <button onClick={this.nextPage}>-&gt;</button>
+                <button onClick={this.nextPage}>-&gt;&gt;</button>
               </div>
             </li>
             <li><div className='navbarElement'><button onClick={'next page'}>Randomize</button></div></li>
-            <li><div className='navbarElement'><button onClick={this.clickSortScore}>Sort:score</button></div></li>
+            <li><div className='navbarElement'><button onClick={this.clickSortScoreDown}>Sort:score:down</button></div></li>
+            <li><div className='navbarElement'><button onClick={this.clickSortScoreUp}>Sort:score:asc</button></div></li>
             <li><div className='navbarElement'><button onClick={this.clickSortNewOld}>New to Old</button></div></li>
             <li><div className='navbarElement'><button onClick={this.clickSortOldNew}>Old to new</button></div></li>
           </ul>
@@ -65,7 +76,7 @@ export default class PageContainer extends React.Component {
 
         <div className="gallery">
           {this.state.images.map(item => {
-            return <ImageContainer key={item.id} imgsm={item.imgsm} id={item.id} score={item.score} prefix={item.prefixs} onClick={this.handleImgClick} onButtonClick={this.handleScore} />;
+            return <Image key={item.id} imgsm={item.imgsm} id={item.id} score={item.score} prefix={item.prefixs} onClick={this.handleImgClick} onButtonClick={this.handleScore} />;
           })}
         </div>
       </div>
@@ -73,36 +84,61 @@ export default class PageContainer extends React.Component {
   }
 
 
+  updateSerchTags(evt) {
+    const val = evt.target.value;
+
+    this.setState({
+      tags: val
+    });
+  }
 
 
 
-  //Button Functions
-  clickSortScore() {
-    this.currentImgEndpoint = 'sortscore';
-    this.setImages();
-  }
-  clickSortNewOld() {
-    this.currentImgEndpoint = 'newold';
-    this.setImages();
-  }
-  clickSortOldNew() {
-    this.currentImgEndpoint = 'oldnew';
-    this.setImages();
-  }
 
   setImages() {
     let endPoint = '';
     switch (this.currentImgEndpoint) {
-      case 'sortscore':
-        endPoint = `/score/down/${this.pageNumber}`;
+      case 'sortscoredown':
+        if (this.state.tags === '') {
+          endPoint = `/query/scoredown/none/${this.pageNumber}`;
+        } else {
+          endPoint = `/query/scoredown/${this.state.tags}/${this.pageNumber}`;
+        }
+        break;
+
+      case 'sortscoreasc':
+        if (this.state.tags === '') {
+          endPoint = `/query/scoreup/none/${this.pageNumber}`;
+        } else {
+          endPoint = `/query/scoreup/${this.state.tags}/${this.pageNumber}`;
+        }
         break;
       case 'newold':
-        endPoint = `/img/page/newfirst/${this.pageNumber}`;
+        if (this.state.tags === '') {
+          endPoint = `/query/newfirst/none/${this.pageNumber}`;
+        } else {
+          endPoint = `/query/newfirst/${this.state.tags}/${this.pageNumber}`;
+        }
         break;
+
       case 'oldnew':
-        endPoint = `/img/page/oldfirst/${this.pageNumber}`;
+        if (this.state.tags === '') {
+          endPoint = `/query/oldfirst/none/${this.pageNumber}`;
+        } else {
+          endPoint = `/query/oldfirst/${this.state.tags}/${this.pageNumber}`;
+        }
         break;
+
+      case 'search':
+        if (this.state.tags === '') {
+          endPoint = `/query/none/${this.pageNumber}`;
+        } else {
+          endPoint = `/query/${this.state.tags}/${this.pageNumber}`;
+        }
+        break;
+
     }
+
     if (endPoint !== '') {
       api.get(endPoint, {}, {
         auth: {
@@ -117,7 +153,14 @@ export default class PageContainer extends React.Component {
     }
   }
 
-  //HandlePages
+  /*
+██████╗░░█████╗░░██████╗░███████╗░██████╗
+██╔══██╗██╔══██╗██╔════╝░██╔════╝██╔════╝
+██████╔╝███████║██║░░██╗░█████╗░░╚█████╗░
+██╔═══╝░██╔══██║██║░░╚██╗██╔══╝░░░╚═══██╗
+██║░░░░░██║░░██║╚██████╔╝███████╗██████╔╝
+╚═╝░░░░░╚═╝░░╚═╝░╚═════╝░╚══════╝╚═════╝░
+  */
   lastPage() {
     if (this.pageNumber != 1) {
       this.handlePageNumberChange(this.pageNumber - 1);
@@ -133,7 +176,16 @@ export default class PageContainer extends React.Component {
 
 
 
-  //MODAL SHIT
+
+
+  /*
+███╗░░░███╗░█████╗░██████╗░░█████╗░██╗░░░░░
+████╗░████║██╔══██╗██╔══██╗██╔══██╗██║░░░░░
+██╔████╔██║██║░░██║██║░░██║███████║██║░░░░░
+██║╚██╔╝██║██║░░██║██║░░██║██╔══██║██║░░░░░
+██║░╚═╝░██║╚█████╔╝██████╔╝██║░░██║███████╗
+╚═╝░░░░░╚═╝░╚════╝░╚═════╝░╚═╝░░╚═╝╚══════╝
+  */
   removeImg() {
     this.setState({
       isClicked: false,
@@ -180,23 +232,43 @@ export default class PageContainer extends React.Component {
   }
 
 
-  //Regular functions
-  shuffle(array) {
-    let currentIndex = array.length, randomIndex;
-
-    // While there remain elements to shuffle.
-    while (currentIndex != 0) {
-
-      // Pick a remaining element.
-      randomIndex = Math.floor(Math.random() * currentIndex);
-      currentIndex--;
-
-      // And swap it with the current element.
-      [array[currentIndex], array[randomIndex]] = [
-        array[randomIndex], array[currentIndex]];
-    }
-
-    return array;
+  /*
+  ██████╗░██╗░░░██╗████████╗████████╗░█████╗░███╗░░██╗
+  ██╔══██╗██║░░░██║╚══██╔══╝╚══██╔══╝██╔══██╗████╗░██║
+  ██████╦╝██║░░░██║░░░██║░░░░░░██║░░░██║░░██║██╔██╗██║
+  ██╔══██╗██║░░░██║░░░██║░░░░░░██║░░░██║░░██║██║╚████║
+  ██████╦╝╚██████╔╝░░░██║░░░░░░██║░░░╚█████╔╝██║░╚███║
+  ╚═════╝░░╚═════╝░░░░╚═╝░░░░░░╚═╝░░░░╚════╝░╚═╝░░╚══╝
+  
+  ███████╗██╗░░░██╗███╗░░██╗░█████╗░████████╗██╗░█████╗░███╗░░██╗░██████╗
+  ██╔════╝██║░░░██║████╗░██║██╔══██╗╚══██╔══╝██║██╔══██╗████╗░██║██╔════╝
+  █████╗░░██║░░░██║██╔██╗██║██║░░╚═╝░░░██║░░░██║██║░░██║██╔██╗██║╚█████╗░
+  ██╔══╝░░██║░░░██║██║╚████║██║░░██╗░░░██║░░░██║██║░░██║██║╚████║░╚═══██╗
+  ██║░░░░░╚██████╔╝██║░╚███║╚█████╔╝░░░██║░░░██║╚█████╔╝██║░╚███║██████╔╝
+  ╚═╝░░░░░░╚═════╝░╚═╝░░╚══╝░╚════╝░░░░╚═╝░░░╚═╝░╚════╝░╚═╝░░╚══╝╚═════╝░
+  */
+  clickSearch() {
+    this.currentImgEndpoint = 'search';
+    console.log('search')
+    console.log('tags:')
+    console.log(this.state.tags);
+    this.setImages();
+  }
+  clickSortScoreDown() {
+    this.currentImgEndpoint = 'sortscoredown';
+    this.setImages();
+  }
+  clickSortScoreUp() {
+    this.currentImgEndpoint = 'sortscoreasc';
+    this.setImages();
+  }
+  clickSortNewOld() {
+    this.currentImgEndpoint = 'newold';
+    this.setImages();
+  }
+  clickSortOldNew() {
+    this.currentImgEndpoint = 'oldnew';
+    this.setImages();
   }
 
 

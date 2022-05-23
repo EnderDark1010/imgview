@@ -38,7 +38,8 @@ html{
 }
 body{
   height: 100%;
-  background-color: grey;
+  background-color: rgb(32, 31, 31);
+  color:grey;
 }
 
 #root{
@@ -76,7 +77,6 @@ body{
 .fullImage{
   position: absolute;
   height: 95%;
- 
   top: 50%;
   left: 50%;
   transform: translate(-50%,-50%);
@@ -84,7 +84,7 @@ body{
 
 .nav{
   flex: 0.5;
-  background-color: rgb(147, 147, 147);
+  border-radius: 50px;
 }
 
 .page{
@@ -106,8 +106,13 @@ ul{
   list-style-type:none;
   text-align: start;
   padding: 0;
+  background-color: rgb(32, 31, 31);
 }
 
 .pageElement{
   width: 50%;
+}
+
+::-webkit-scrollbar{
+  width: 0px;
 }

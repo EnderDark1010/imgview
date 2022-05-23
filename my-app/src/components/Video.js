@@ -1,11 +1,16 @@
+import React from 'react';
+  
+   
+//displays image,id,score, button that increases score
+/*
+Usage:
+const element = <Welcome name="Sara" />;
+*/
+
 export default class Video extends React.Component {
     constructor(props){
         super(props);
-        this.state ={
-            img:'',
-            imgRes:'',
-            tags:'',
-        };
+        this.state ={score:this.props.score};
         
     }
 
@@ -21,3 +26,5 @@ export default class Video extends React.Component {
 
   
   }
+
+  //
