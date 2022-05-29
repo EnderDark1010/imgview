@@ -1,16 +1,50 @@
-import logo from './logo.svg';
+import React from "react";
+import PageContainer from "./components/Gallary/PageContainer";
+import "bootstrap/dist/css/bootstrap.min.css";
+import "./css/App.css";
+import "./css/Button.css";
+import Login from "./components/Login/Login";
+import Upload from "./components/Upload/Upload";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Layout from "./components/Layout";
+export default class App extends React.Component {
+  state = { isLoggedIn: false };
 
-import PageContainer from './components/PageContainer'
-import 'bootstrap/dist/css/bootstrap.min.css';
-import './css/App.css';
-import './css/Button.css';
-import Video from './components/Video';
-function App() {
-  return (
-    <div className="App">
-      <PageContainer/>
-    </div>
-  );
+  componentDidMount() {
+    this.setLoginData();
+    console.log(this.getLoginDataFromLocalStorage());
+    this.setState({ isLoggedIn: this.getLoginDataFromLocalStorage() });
+  }
+
+  render() {
+    if (this.state.isLoggedIn) {
+      return (
+        <div className="App">
+        <BrowserRouter>
+        <Routes>
+        <Route path="/" element={<Layout />}>
+          <Route index element={<PageContainer />} />
+          <Route path="Upload" element={<Upload />} />
+          <Route path="Login" element={<Login />} />
+        </Route>
+      </Routes>
+        </BrowserRouter>
+        </div>
+      );
+    } else {
+      return (
+        <div className="App">
+          <Login />
+        </div>
+      );
+    }
+  }
+
+  getLoginDataFromLocalStorage() {
+    return window.localStorage.getItem("isLogedIn");
+  }
+
+  setLoginData() {
+    window.localStorage.setItem("isLogedIn", true);
+  }
 }
-
-export default App;

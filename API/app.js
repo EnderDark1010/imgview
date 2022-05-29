@@ -3,6 +3,7 @@ const express = require('express')
 const bodyParser = require('body-parser')
 const mysql = require('mysql')
 const cors = require('cors')
+const { raw } = require('body-parser')
 const app = express()
 
 const port = process.env.PORT || 5000
@@ -356,6 +357,51 @@ app.post('/minusscore/:id', (req, res) => {
         })
     })
 })
+
+
+
+
+
+//test
+app.post('/test/', (req, res) => {
+    console.log("call test");
+    let txt = req.params.txt;
+    //[print request] json format
+    console.log(req);
+    console.log("body");
+    console.log();
+    pool.getConnection((err, connection) => {
+        if (err) throw err
+        connection.query(`INSERT INTO test (id, txt, file) VALUES (NULL, '${txt}', NULL);`, (err, rows) => {
+            connection.release()
+            if (!err) {
+                console.log("success")
+                res.send(rows);
+
+            } else {
+                console.log(err);
+                res.send(err);
+            }
+        })
+    })
+})
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 // listen on env

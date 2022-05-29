@@ -11,7 +11,7 @@
     "buffer": "^6.0.3",
     "compress.js": "^1.2.2",
     "cors": "^2.8.5",
-    "react": "^18.0.0",
+    "react": "^18.1.0",
     "react-bootstrap": "^2.2.3",
     "react-dom": "^18.0.0",
     "react-image-file-resizer": "^0.4.7",
@@ -42,5 +42,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "react-router-dom": "^6.3.0"
   }
 }
