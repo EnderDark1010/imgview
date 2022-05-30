@@ -1,0 +1,37 @@
+button {
+
+
+    border: none;
+    border-radius: 16px;
+    box-shadow: 0 0 20px #ab65bc, -2px 1px 13px #de21f3, 0 0 18px #f32191;
+    background: #e764aa;
+    font-family: 'Tiro Devanagari Sanskrit', serif;
+    font-size: 20px;
+}
+
+button:hover {
+    background: #2196f3;
+    box-shadow: 0 0 5px #2196f3, 0 0 40px #2196f3, 0 0 80px #2196f3;
+}
+
+input {
+    box-shadow: 0 0 20px #ab65bc, -2px 1px 13px #de21f3, 0 0 18px #f32191;
+    background: #e764aa;
+    border: none;
+    border-radius: 16px;
+    font-family: 'Tiro Devanagari Sanskrit', serif;
+    font-size: 20px;
+}
+input[type=file]::file-selector-button{
+    box-shadow: 0 0 20px #ab65bc, -2px 1px 13px #de21f3, 0 0 18px #f32191;
+    background: #ef8fc2;
+    border: none;
+    border-radius: 16px;
+    font-family: 'Tiro Devanagari Sanskrit', serif;
+    font-size: 20px;
+}
+
+img {
+    box-shadow: 0 0 20px #ab65bc, -2px 1px 13px #de21f3, 0 0 18px #f32191;
+    border-radius: 16px;
+}
