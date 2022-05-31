@@ -1,12 +1,15 @@
 import fetch from 'node-fetch';
 import React from "react";
-
+import axios from 'axios';
+const api = axios.create({
+  baseURL: 'http://localhost:5000',
+})
 export default class Upload extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       file: null,
-      tagsForAll: "asdf"
+      tagsForAll: ""
     };
   }
 
@@ -24,21 +27,18 @@ export default class Upload extends React.Component {
   async upload() {
     const reader = new FileReader();
     const imgRaw = this.state.file;
-
+    const tags = this.state.tagsForAll;
     reader.readAsDataURL(imgRaw);
     reader.onload = function () {
-      fetch("http://localhost:5000/test", {
-        method: "POST",
-        body: JSON.stringify({
-          tags: "txt",
+      axios({
+        method: "post",
+        url: "http://localhost:5000/test",
+        data: {
+          tags: tags,
           dataUri: reader.result
-        }),
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }).then(res => {
-        console.log(res);
-      });
+        }
+      })
+
     }
   }
 
@@ -47,7 +47,9 @@ export default class Upload extends React.Component {
     this.setState({
       tagsForAll: val
     });
+    console.log(val);
   }
+
   changeFile(evt) {
     const val = evt.target.files[0];
     this.setState({

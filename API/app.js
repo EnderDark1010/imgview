@@ -372,7 +372,7 @@ app.post('/test', (req, res) => {
     //remove prefix from datauri
     dataUri = dataUri.replace(prefix, '');
 
-   sharp(blob).resize(200, 200).toBuffer((err, buffer) => {
+   sharp(blob).resize(400, undefined).toBuffer((err, buffer) => {
         if (err) {
             console.log(err);
         } else {
@@ -382,33 +382,51 @@ app.post('/test', (req, res) => {
             console.log(resizedImg);
             console.log(dataUri)
 
-            // pool.getConnection((err, connection) => {
-            //     if (err) throw err
-            //     connection.query(`INSERT INTO image 
-            //                      (img,imgsm,score,prefix,prefixs,tags)
-            //                      VALUES ( FROM_BASE64('${dataUri}'),
-            //                      FROM_BASE64('${resizedImg}'),
-            //                      0,
-            //                      '${prefix}',
-            //                      '${resizedMime}',
-            //                      '${tags}');`,
-            //         (err, rows) => {
-            //             connection.release()
-            //             if (!err) {
-            //                 console.log("success")
-            //                 res.send(rows);
+            pool.getConnection((err, connection) => {
+                if (err) throw err
+                connection.query(`INSERT INTO image 
+                                 (img,imgsm,score,prefix,prefixs,tags)
+                                 VALUES ( FROM_BASE64('${dataUri}'),
+                                 FROM_BASE64('${resizedImg}'),
+                                 0,
+                                 '${prefix}',
+                                 '${prefix}',
+                                 '${tags}');`,
+                    (err, rows) => {
+                        connection.release()
+                        if (!err) {
+                            console.log("success")
+                            res.send(rows);
         
-            //             } else {
-            //                 console.log(err);
-            //                 res.send(err);
-            //             }
-            //         })
-            // })
+                        } else {
+                            console.log(err);
+                            res.send(err);
+                        }
+                    })
+            })
         }
     })   
 })
 
 
+
+
+
+//login
+app.post('/login', (req, res) => {
+    let { username, password } = req.body;
+    pool.getConnection((err, connection) => {
+        if (err) throw err
+        connection.query(`SELECT * FROM user WHERE username = '${username}' AND password = '${password}'`, (err, rows) => {
+            connection.release()
+            if (!err) {
+                res.send(rows);
+            } else {
+                res.send(rows);
+            }
+        })
+    })
+})
 
 
 

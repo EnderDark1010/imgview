@@ -145,6 +145,7 @@ export default class PageContainer extends React.Component {
           password: 'master'
         }
       }).then(res => {
+        console.log(res);
         this.setState({
           images: res.data,
         })

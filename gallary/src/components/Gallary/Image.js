@@ -43,7 +43,7 @@ export default class Image extends React.Component {
       }
     }
     toImgLink(){
-      return 'data:'+ this.props.prefix + ';base64,'+ this.props.imgsm;
+      return this.props.prefix+this.props.imgsm;
     }
   }
 

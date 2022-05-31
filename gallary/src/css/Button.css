@@ -35,3 +35,10 @@ img {
     box-shadow: 0 0 20px #ab65bc, -2px 1px 13px #de21f3, 0 0 18px #f32191;
     border-radius: 16px;
 }
+
+.marginLeft50{
+    margin-right: 50px;
+}
+.marginRight50{
+    margin-left: 50px;
+}
