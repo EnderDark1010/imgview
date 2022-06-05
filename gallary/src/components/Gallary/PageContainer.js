@@ -1,8 +1,9 @@
 import React from 'react';
 import axios from 'axios';
 import Image from './Image'
+import { GETREQUEST, getRequest } from './API';
 const api = axios.create({
-  baseURL: 'http://localhost:5000',
+  baseURL: 'http://192.168.1.114:5000',
 })
 //contains a searchbar and  imageContainers
 //once imagecontainer data is base on what is in the searchbar
@@ -11,7 +12,7 @@ export default class PageContainer extends React.Component {
 
   constructor() {
     super();
-    this.handleImgClick = this.handleImgClick.bind(this);
+    this.setActiveImageSrc = this.setActiveImageSrc.bind(this);
     this.removeImg = this.removeImg.bind(this);
     this.handleInput = this.handleInput.bind(this);
     this.nextPage = this.nextPage.bind(this);
@@ -27,6 +28,8 @@ export default class PageContainer extends React.Component {
     images: [],
     isClicked: false,
     ActiveImageSrc: '',
+    ActiveImageID: 0,
+    imgIDs: [],
     search: '',
     pageNumber: 1,
     tags: ''
@@ -43,8 +46,6 @@ export default class PageContainer extends React.Component {
     else {
       modal = '';
     }
-    console.log('render');
-    console.log(this.state);
     return <div className='pageContainer' tabIndex="0" onKeyDown={this.handleInput}>
       {modal}
       <div className='page'>
@@ -75,7 +76,7 @@ export default class PageContainer extends React.Component {
 
         <div className="gallery">
           {this.state.images.map(item => {
-            return <Image key={item.id} imgsm={item.imgsm} id={item.id} score={item.score} prefix={item.prefixs} onClick={this.handleImgClick} onButtonClick={this.handleScore} />;
+            return <Image key={item.id} imgsm={item.imgsm} id={item.id} score={item.score} prefix={item.prefixs} onClick={this.setActiveImageSrc} onButtonClick={this.handleScore} />;
           })}
         </div>
       </div>
@@ -99,38 +100,38 @@ export default class PageContainer extends React.Component {
     switch (this.currentImgEndpoint) {
       case 'sortscoredown':
         if (this.state.tags === '') {
-          endPoint = `/query/scoredown/none/${this.pageNumber}`;
+          endPoint = `/query/scoreDown/none/${this.pageNumber}`;
         } else {
-          endPoint = `/query/scoredown/${this.state.tags}/${this.pageNumber}`;
+          endPoint = `/query/scoreDown/${this.state.tags}/${this.pageNumber}`;
         }
         break;
 
       case 'sortscoreasc':
         if (this.state.tags === '') {
-          endPoint = `/query/scoreup/none/${this.pageNumber}`;
+          endPoint = `/query/scoreUp/none/${this.pageNumber}`;
         } else {
-          endPoint = `/query/scoreup/${this.state.tags}/${this.pageNumber}`;
+          endPoint = `/query/scoreUp/${this.state.tags}/${this.pageNumber}`;
         }
         break;
       case 'newold':
         if (this.state.tags === '') {
-          endPoint = `/query/newfirst/none/${this.pageNumber}`;
+          endPoint = `/query/idDown/none/${this.pageNumber}`;
         } else {
-          endPoint = `/query/newfirst/${this.state.tags}/${this.pageNumber}`;
+          endPoint = `/query/idDown/${this.state.tags}/${this.pageNumber}`;
         }
         break;
 
       case 'oldnew':
         if (this.state.tags === '') {
-          endPoint = `/query/oldfirst/none/${this.pageNumber}`;
+          endPoint = `/query/idUp/none/${this.pageNumber}`;
         } else {
-          endPoint = `/query/oldfirst/${this.state.tags}/${this.pageNumber}`;
+          endPoint = `/query/idUp/${this.state.tags}/${this.pageNumber}`;
         }
         break;
 
       case 'search':
         if (this.state.tags === '') {
-          endPoint = `/query/none/${this.pageNumber}`;
+          endPoint = `/query/none/none/${this.pageNumber}`;
         } else {
           endPoint = `/query/${this.state.tags}/${this.pageNumber}`;
         }
@@ -145,11 +146,17 @@ export default class PageContainer extends React.Component {
           password: 'master'
         }
       }).then(res => {
-        console.log(res);
         this.setState({
           images: res.data,
         })
-      })
+        let ids = [];
+        res.data.forEach(item => {
+          ids.push(item.id);
+        });
+        this.setState({
+          imgIDs: ids
+        })
+      });
     }
   }
 
@@ -192,24 +199,32 @@ export default class PageContainer extends React.Component {
       ActiveImageSrc: ''
     });
   }
-  handleImgClick(id) {
-    this.setState({ isClicked: true });
-    api.get('/img/id/' + id, {}, {
-      auth: {
-        username: 'master',
-        password: 'master'
-      }
-    }).then(res => {
-      res.data.map(item => {
-        this.setState({ ActiveImageSrc:  item.prefix + item.img })
-      })
-
+  async setActiveImageSrc(id) {
+    let data = await getRequest(GETREQUEST.SINGLE_IMAGE, { id: id })
+    this.setState({
+      ActiveImageSrc: data[0].prefix + data[0].img,
+      isClicked: true, ActiveImageID: id
     })
+
   }
   handleInput(event) {
-    if (event.key === 'Escape') {
+    if (event.key === 'Escape' && this.state.isClicked) {
       this.removeImg();
     }
+    //if event key left
+    if (event.key === 'ArrowLeft' && this.state.isClicked) {
+      this.imgLeft();
+    }
+    //if event key right
+    if (event.key === 'ArrowRight' && this.state.isClicked) {
+      this.imgRight();
+    }
+  }
+  imgLeft() {
+    this.setActiveImageSrc(this.state.imgIDs[this.state.imgIDs.indexOf(this.state.ActiveImageID) - 1]);
+  }
+  imgRight() {
+    this.setActiveImageSrc(this.state.imgIDs[this.state.imgIDs.indexOf(this.state.ActiveImageID) + 1]);
   }
   handleScore(id, addBool) {
     if (addBool) {
@@ -249,9 +264,6 @@ export default class PageContainer extends React.Component {
   */
   clickSearch() {
     this.currentImgEndpoint = 'search';
-    console.log('search')
-    console.log('tags:')
-    console.log(this.state.tags);
     this.setImages();
   }
   clickSortScoreDown() {
