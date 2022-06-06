@@ -17,12 +17,9 @@ export default class PageContainer extends React.Component {
     this.handleInput = this.handleInput.bind(this);
     this.nextPage = this.nextPage.bind(this);
     this.lastPage = this.lastPage.bind(this);
-    this.clickSortScoreDown = this.clickSortScoreDown.bind(this);
-    this.clickSortNewOld = this.clickSortNewOld.bind(this);
-    this.clickSortOldNew = this.clickSortOldNew.bind(this);
     this.updateSerchTags = this.updateSerchTags.bind(this);
     this.clickSearch = this.clickSearch.bind(this);
-    this.clickSortScoreUp = this.clickSortScoreUp.bind(this);
+
   }
   state = {
     images: [],
@@ -32,15 +29,18 @@ export default class PageContainer extends React.Component {
     imgIDs: [],
     search: '',
     pageNumber: 1,
-    tags: ''
+    tags: '',
+    imgEndpoint: 'sortscoredown'
   }
-  currentImgEndpoint = '';
   pageNumber = 1;
+
+
+
   render() {
     let modal;
     if (this.state.isClicked) {
       modal = <div className='modal' onClick={this.removeImg}>
-        <img className='fullImage' src={this.state.ActiveImageSrc} />
+        <img id='fullImage' className='fullImage' src={this.state.ActiveImageSrc} />
       </div>;
     }
     else {
@@ -51,26 +51,33 @@ export default class PageContainer extends React.Component {
       <div className='page'>
         <div className='nav'>
           <ul>
-            <li>
-              <div className='navbarElement'>
-                <input type='text' placeholder='tag1,tag2,....' value={this.state.tags} onChange={evt => this.updateSerchTags(evt)}></input>
-              </div>
-            </li>
-            <li><button onClick={this.clickSearch} >Search</button></li>
-            <li>
-              <div className='navbarElement'>
-                <button onClick={this.lastPage}>&lt;&lt;-</button>
-                <button onClick={this.lastPage}>&lt;-</button>
-                &nbsp;{this.pageNumber}&nbsp;
-                <button onClick={this.nextPage}>-&gt;</button>
-                <button onClick={this.nextPage}>-&gt;&gt;</button>
-              </div>
-            </li>
-            <li><div className='navbarElement'><button onClick={'next page'}>Randomize</button></div></li>
-            <li><div className='navbarElement'><button onClick={this.clickSortScoreDown}>Sort:score:down</button></div></li>
-            <li><div className='navbarElement'><button onClick={this.clickSortScoreUp}>Sort:score:asc</button></div></li>
-            <li><div className='navbarElement'><button onClick={this.clickSortNewOld}>New to Old</button></div></li>
-            <li><div className='navbarElement'><button onClick={this.clickSortOldNew}>Old to new</button></div></li>
+
+            <div className='navbarElement'>
+            <label for="tagInput">Tags:</label>
+              <input name='tagInput' type='text' placeholder='tag1,tag2,....' value={this.state.tags} onChange={evt => this.updateSerchTags(evt)}></input>
+              <button onClick={this.clickSearch} >Search</button>
+            </div>
+            <div className='navbarElement'>
+            <label for="orderSelection">Orderd by:</label>
+            <select name="orderSelection" id="orderSelection" value={this.state.imgEndpoint} onChange={(e)=>this.changeImgSearchOrder(e)}>
+              <option value="sortscoreasc">Score Up</option>
+              <option value="sortscoredown">Score Down</option>
+              <option value="newold">New to Old</option>
+              <option value="oldnew">Old to new</option>
+              <option value="random">Random</option>
+            </select>
+            </div>
+
+
+            <div className='navbarElement'>
+              <button onClick={this.lastPage}>&lt;&lt;-</button>
+              <button onClick={this.lastPage}>&lt;-</button>
+              &nbsp;{this.pageNumber}&nbsp;
+              <button onClick={this.nextPage}>-&gt;</button>
+              <button onClick={this.nextPage}>-&gt;&gt;</button>
+            </div>
+
+            
           </ul>
         </div>
 
@@ -83,81 +90,39 @@ export default class PageContainer extends React.Component {
     </div>
   }
 
-
-  updateSerchTags(evt) {
-    const val = evt.target.value;
-
-    this.setState({
-      tags: val
-    });
-  }
-
-
-
-
   setImages() {
     let endPoint = '';
-    switch (this.currentImgEndpoint) {
-      case 'sortscoredown':
-        if (this.state.tags === '') {
-          endPoint = `/query/scoreDown/none/${this.pageNumber}`;
-        } else {
-          endPoint = `/query/scoreDown/${this.state.tags}/${this.pageNumber}`;
-        }
-        break;
-
-      case 'sortscoreasc':
-        if (this.state.tags === '') {
-          endPoint = `/query/scoreUp/none/${this.pageNumber}`;
-        } else {
-          endPoint = `/query/scoreUp/${this.state.tags}/${this.pageNumber}`;
-        }
-        break;
-      case 'newold':
-        if (this.state.tags === '') {
-          endPoint = `/query/idDown/none/${this.pageNumber}`;
-        } else {
-          endPoint = `/query/idDown/${this.state.tags}/${this.pageNumber}`;
-        }
-        break;
-
-      case 'oldnew':
-        if (this.state.tags === '') {
-          endPoint = `/query/idUp/none/${this.pageNumber}`;
-        } else {
-          endPoint = `/query/idUp/${this.state.tags}/${this.pageNumber}`;
-        }
-        break;
-
-      case 'search':
-        if (this.state.tags === '') {
-          endPoint = `/query/none/none/${this.pageNumber}`;
-        } else {
-          endPoint = `/query/${this.state.tags}/${this.pageNumber}`;
-        }
-        break;
+    switch (this.state.imgEndpoint) {
+      case 'sortscoredown': endPoint += `/query/scoreDown/`; break;
+      case 'sortscoreasc': endPoint += `/query/scoreUp/`; break;
+      case 'newold': endPoint += `/query/idDown/`; break;
+      case 'oldnew': endPoint += `/query/idUp/`; break;
+      case 'search': endPoint += `/query/`; break;
 
     }
+    if (this.state.tags === '') {
+      endPoint += `none/${this.pageNumber}`
+    } else {
+      endPoint += `${this.state.tags}/${this.pageNumber}`
+    }
 
-    if (endPoint !== '') {
-      api.get(endPoint, {}, {
-        auth: {
-          username: 'master',
-          password: 'master'
-        }
-      }).then(res => {
-        this.setState({
-          images: res.data,
-        })
-        let ids = [];
-        res.data.forEach(item => {
-          ids.push(item.id);
-        });
-        this.setState({
-          imgIDs: ids
-        })
+    api.get(endPoint, {}, {
+      auth: {
+        username: 'master',
+        password: 'master'
+      }
+    }).then(res => {
+      this.setState({
+        images: res.data,
+      })
+      let ids = [];
+      res.data.forEach(item => {
+        ids.push(item.id);
       });
-    }
+      this.setState({
+        imgIDs: ids
+      })
+    });
   }
 
   /*
@@ -263,26 +228,20 @@ export default class PageContainer extends React.Component {
   ╚═╝░░░░░░╚═════╝░╚═╝░░╚══╝░╚════╝░░░░╚═╝░░░╚═╝░╚════╝░╚═╝░░╚══╝╚═════╝░
   */
   clickSearch() {
-    this.currentImgEndpoint = 'search';
     this.setImages();
   }
-  clickSortScoreDown() {
-    this.currentImgEndpoint = 'sortscoredown';
-    this.setImages();
-  }
-  clickSortScoreUp() {
-    this.currentImgEndpoint = 'sortscoreasc';
-    this.setImages();
-  }
-  clickSortNewOld() {
-    this.currentImgEndpoint = 'newold';
-    this.setImages();
-  }
-  clickSortOldNew() {
-    this.currentImgEndpoint = 'oldnew';
-    this.setImages();
+  changeImgSearchOrder(evt) {
+    const val = evt.target.value;
+    this.setState({
+      imgEndpoint: val
+    });
   }
 
-
+  updateSerchTags(evt) {
+    const val = evt.target.value;
+    this.setState({
+      tags: val
+    });
+  }
 }
 

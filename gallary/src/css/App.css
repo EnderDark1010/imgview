@@ -43,7 +43,7 @@ body{
   background-color: rgb(32, 31, 31);
   color:grey;
   font-family: 'Tiro Devanagari Sanskrit', serif;
-  font-size: 20px;
+  font-size: 1rem;
 }
 
 #root{
@@ -53,20 +53,23 @@ body{
 .gallery{
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px,1fr));
-  /*grid-template-columns: repeat(auto-fit, minmax(400px,1fr));*/
-  min-height: 100vh;
   grid-gap:2rem;
   flex: 4.5;
+  height: 75vh;
+  overflow-y: scroll;
+
 }
 
 .img-container{
     margin: auto;
+    padding: 1.33vh;
 }
 
 .img-container img{
   width: 100%;
   height: 100%;
   object-fit: cover;
+  
 }
 
 .modal{
@@ -80,10 +83,13 @@ body{
 }
 .fullImage{
   position: absolute;
-  height: 95%;
+  width: 95%;
+  height: auto;
+  object-fit: fill;
   top: 50%;
   left: 50%;
   transform: translate(-50%,-50%);
+  
 }
 
 .nav{
@@ -92,14 +98,9 @@ body{
 }
 
 .page{
-  display: flex;
+  /* display: flex; */
   margin: 2rem;
   grid-gap: 1rem;
-}
-
-.pageContainer{
-  outline: none;
-  height: 100%;
 }
 
 li{
@@ -128,9 +129,17 @@ ul{
   margin: 0;
   padding: 0;
   margin-top: -30px;
-  height: 10%;
+ 
+    
+
+  height: 12vh;
   overflow: hidden;
   background-color: #333;
+}
+@media (max-width: 768px) {
+  .ulNav{
+    height: 10vh;
+  }
 }
 
 .liNav {

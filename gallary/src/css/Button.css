@@ -6,7 +6,6 @@ button {
     box-shadow: 0 0 20px #ab65bc, -2px 1px 13px #de21f3, 0 0 18px #f32191;
     background: #e764aa;
     font-family: 'Tiro Devanagari Sanskrit', serif;
-    font-size: 20px;
 }
 
 button:hover {
@@ -20,7 +19,6 @@ input {
     border: none;
     border-radius: 16px;
     font-family: 'Tiro Devanagari Sanskrit', serif;
-    font-size: 20px;
 }
 input[type=file]::file-selector-button{
     box-shadow: 0 0 20px #ab65bc, -2px 1px 13px #de21f3, 0 0 18px #f32191;
@@ -28,7 +26,6 @@ input[type=file]::file-selector-button{
     border: none;
     border-radius: 16px;
     font-family: 'Tiro Devanagari Sanskrit', serif;
-    font-size: 20px;
 }
 
 img {
