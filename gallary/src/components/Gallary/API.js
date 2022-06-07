@@ -1,29 +1,36 @@
 import axios from 'axios';
-const BASE_URL = 'http://192.168.1.114:5000/';
+const BASE_URL = 'http://10.62.108.217:5000/';
 export function putRequest(type, data) {
-
+switch(type){
+    case PUTREQUEST.ADD_USER:
+        break;
+    case PUTREQUEST.ADD_IMAGE:
+        break;
+    case PUTREQUEST.LIKE_DISLIKE:
+        break;
+}
 }
 
 export async  function getRequest(type, data) {
-    let URL;
+    let URL="";
     let formData = new FormData();
     switch (type) {
         case GETREQUEST.MULTIPLE_IMAGES:
-            URL += "search";
-            formData.append('tags', data.tags);
-            formData.append('pageNumber', data.pageNumber);
-            formData.append('order', ORDER[data.order]);
+            console.log("here")
+            URL += `query/${ORDER[data.order]}/${data.tags}/${data.pageNumber}`;
             break;
         case GETREQUEST.SINGLE_IMAGE:
             URL = "img/id/"+data.id;
             break;
         case GETREQUEST.FAVORITES:
             URL= "favorites";
+            //todo
             formData.append('pageNumber', data.pageNumber);
             formData.append('uID', data.userID);
             break;
         case GETREQUEST.VERIFY_USER_EXISTS:
             URL = "user_existence";
+            //todo
             formData.append('username', data.username);
             formData.append('password', data.password);
             break;
@@ -44,7 +51,7 @@ export async  function getRequest(type, data) {
 
 //map of enums
 export const PUTREQUEST = {
-    ADJUST_FAVORITE: "ADJUST_SCORE",
+    LIKE_DISLIKE: "LIKE_DISLIKE",
     ADD_IMAGE: "ADD_IMAGE",
     ADD_USER: "ADD_USER",
 }
@@ -58,10 +65,9 @@ export const GETREQUEST = {
 
 
 export const ORDER = {
-    SCORE_UP: "ORDER BY score ASC;",
-    SCORE_DOWN: "ORDER BY score DESC;",
-    AGE_UP: "ORDER BY id ASC;",
-    AGE_DOWN: "ORDER BY id DESC",
-    RANDOMIZED: "ORDER BY RAND()",
-    NONE: ""
+    scoreDown: "scoreDown",
+    scoreUp: "scoreUp",
+    idUp: "idUp",
+    idDown: "idDown",
+    random: "random",
 }

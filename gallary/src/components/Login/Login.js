@@ -19,6 +19,9 @@ export default class Login extends React.Component {
         <button className='marginRight50' onClick={evt => this.logout()}>Logout</button>
         <button className='marginLeft50' onClick={evt => this.login()}>Login</button>
       </div>
+      <div className='paddingTop25'>
+      <button className='' onClick={evt => this.login()}>Create New User</button>
+      </div>
     </div>
       ;
   }
@@ -26,7 +29,7 @@ export default class Login extends React.Component {
     console.log("login")
     axios({
       method: "post",
-      url: "http://192.168.1.114:5000/login",
+      url: "http://10.62.108.217:5000/login",
       data: {
         username: this.state.username,
         password: this.state.password

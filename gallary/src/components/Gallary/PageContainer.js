@@ -1,9 +1,9 @@
 import React from 'react';
 import axios from 'axios';
 import Image from './Image'
-import { GETREQUEST, getRequest } from './API';
+import { GETREQUEST, getRequest, ORDER } from './API';
 const api = axios.create({
-  baseURL: 'http://192.168.1.114:5000',
+  baseURL: 'http://10.62.108.217:5000',
 })
 //contains a searchbar and  imageContainers
 //once imagecontainer data is base on what is in the searchbar
@@ -67,8 +67,7 @@ export default class PageContainer extends React.Component {
               <option value="random">Random</option>
             </select>
             </div>
-
-
+            </ul>
             <div className='navbarElement'>
               <button onClick={this.lastPage}>&lt;&lt;-</button>
               <button onClick={this.lastPage}>&lt;-</button>
@@ -78,7 +77,6 @@ export default class PageContainer extends React.Component {
             </div>
 
             
-          </ul>
         </div>
 
         <div className="gallery">
@@ -90,39 +88,33 @@ export default class PageContainer extends React.Component {
     </div>
   }
 
-  setImages() {
-    let endPoint = '';
+ async setImages() {
+    let endPoint;
+    let tags;
     switch (this.state.imgEndpoint) {
-      case 'sortscoredown': endPoint += `/query/scoreDown/`; break;
-      case 'sortscoreasc': endPoint += `/query/scoreUp/`; break;
-      case 'newold': endPoint += `/query/idDown/`; break;
-      case 'oldnew': endPoint += `/query/idUp/`; break;
-      case 'search': endPoint += `/query/`; break;
+      case 'sortscoredown': endPoint =ORDER.scoreDown; break;
+      case 'sortscoreasc': endPoint =ORDER.scoreUp; break;
+      case 'newold': endPoint=ORDER.idDown; break;
+      case 'oldnew': endPoint =ORDER.idUp; break;
+      case 'search': endPoint =ORDER.random; break;
 
     }
-    if (this.state.tags === '') {
-      endPoint += `none/${this.pageNumber}`
-    } else {
-      endPoint += `${this.state.tags}/${this.pageNumber}`
+    if (this.state.tags ==''){
+      tags = 'none';
+    }else{
+      tags = this.state.tags;
     }
-
-    api.get(endPoint, {}, {
-      auth: {
-        username: 'master',
-        password: 'master'
-      }
-    }).then(res => {
-      this.setState({
-        images: res.data,
-      })
-      let ids = [];
-      res.data.forEach(item => {
-        ids.push(item.id);
-      });
-      this.setState({
-        imgIDs: ids
-      })
+    let data = await getRequest(GETREQUEST.MULTIPLE_IMAGES,{order:endPoint,tags:tags,pageNumber:this.pageNumber});
+    this.setState({
+      images: data,
+    })
+    let ids = [];
+    data.forEach(item => {
+      ids.push(item.id);
     });
+    this.setState({
+      imgIDs: ids
+    })
   }
 
   /*
