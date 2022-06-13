@@ -3,7 +3,7 @@ import axios from 'axios';
 import Image from './Image'
 import { GETREQUEST, getRequest, ORDER } from './API';
 const api = axios.create({
-  baseURL: 'http://10.62.108.217:5000',
+  baseURL: 'http://192.168.1.114:5000',
 })
 //contains a searchbar and  imageContainers
 //once imagecontainer data is base on what is in the searchbar

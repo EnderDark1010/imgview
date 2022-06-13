@@ -44,6 +44,9 @@ input[type=text]{
     max-width: 75vw;
     width: 20%;
 }
+input[type=text].inputUpload{
+    width: 70% !important;
+}
 
 @media (max-width: 768px) {
     input[type=text]{

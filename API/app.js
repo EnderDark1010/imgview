@@ -16,7 +16,7 @@ const imagesPerPage = 30;
 // my sql
 const pool = mysql.createPool({
   connectionLimit: 10,
-  host: "10.62.108.217",
+  host: "192.168.1.114",
   user: "master",
   password: "master",
   database: "imgviever",
@@ -61,8 +61,7 @@ app.post("/like", (req, res) => {
     if (err) throw err;
 
     connection.query(
-      `UPDATE image SET score = score + ${
-        1 + Math.random() * 0.1
+      `UPDATE image SET score = score + ${1 + Math.random() * 0.1
       } WHERE id = ${imgId}`,
       (err, rows) => {
         connection.release();
@@ -77,15 +76,16 @@ app.post("/like", (req, res) => {
 });
 
 //test
-app.post("/test", (req, res) => {
+app.post("/upload", (req, res) => {
   let { tags, dataUri } = req.body;
+  tags = tags.filter(e => e);
   let resizedImg;
   let resizedMime;
+  let insertId;
   let blob = dataURItoBlob(dataUri);
   let prefix = getMimeTypeFromDataURI(dataUri);
   //remove prefix from datauri
   dataUri = dataUri.replace(prefix, "");
-
   sharp(blob)
     .resize(400, undefined)
     .toBuffer((err, buffer) => {
@@ -93,11 +93,6 @@ app.post("/test", (req, res) => {
         console.log(err);
       } else {
         resizedImg = buffer.toString("base64");
-        console.log("resizedImg");
-
-        console.log(resizedImg);
-        console.log(dataUri);
-
         pool.getConnection((err, connection) => {
           if (err) throw err;
           connection.query(
@@ -108,12 +103,47 @@ app.post("/test", (req, res) => {
                                  0,
                                  '${prefix}',
                                  '${prefix}',
-                                 '${tags}');`,
+                                 '');`,
             (err, rows) => {
-              connection.release();
+
               if (!err) {
-                console.log("success");
-                res.send(rows);
+                insertId = rows.insertId;
+                for (let i = 0; i < tags.length; i++) {
+                  if (!tagIdMap.has(tags[i])) {
+                    connection.query(
+                      `INSERT INTO tag (name) VALUES ('${tags[i]}')`,
+                      (err, rows) => {
+                        if (!err) {
+                          console.log(rows.insertId + " line 118")
+                          tagIdMap.set(tags[i], rows.insertId);
+                          connection.query(
+                            `INSERT INTO imagetag (img_id, tag_id) VALUES (${insertId}, ${rows.insertId})`,
+                            (err, rows) => {
+                              if (!err) {
+                                console.log(rows);
+                              } else {
+                                console.log(err);
+                              }
+                            });
+                        } else {
+                          console.log(err);
+                        }
+                      }
+                    );
+                  }else{
+                    connection.query(
+                      `INSERT INTO imagetag (img_id, tag_id) VALUES (${insertId}, ${tagIdMap.get(tags[i])})`,
+                      (err, rows) => {
+                        if (!err) {
+                        } else {
+                          console.log(err);
+                        }
+                      }
+                    );
+                  }
+                }
+                
+                connection.release();
               } else {
                 console.log(err);
                 res.send(err);
@@ -172,7 +202,7 @@ app.get("/query/:order/:tags/:page", (req, res) => {
     console.log(SqlQuery);
     connection.query(
       SqlQuery +
-        ` LIMIT ${page * imagesPerPage - imagesPerPage},${imagesPerPage}`,
+      ` LIMIT ${page * imagesPerPage - imagesPerPage},${imagesPerPage}`,
       (err, rows) => {
         connection.release();
         if (!err) {
@@ -206,5 +236,6 @@ pool.getConnection((err, connection) => {
     rows.forEach((row) => {
       tagIdMap.set(row.name, row.id);
     });
+    console.log(tagIdMap)
   });
 });

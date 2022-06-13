@@ -1,12 +1,13 @@
 import axios from 'axios';
 const BASE_URL = 'http://192.168.1.114:5000/';
-export function putRequest(type, data) {
+export function postRequest(type, data) {
 switch(type){
-    case PUTREQUEST.ADD_USER:
+    case POSTREQUEST.ADD_USER:
         break;
-    case PUTREQUEST.ADD_IMAGE:
+    case POSTREQUEST.ADD_IMAGE:
+        
         break;
-    case PUTREQUEST.LIKE_DISLIKE:
+    case POSTREQUEST.LIKE_DISLIKE:
         break;
 }
 }
@@ -50,7 +51,7 @@ export async  function getRequest(type, data) {
 
 
 //map of enums
-export const PUTREQUEST = {
+export const POSTREQUEST = {
     LIKE_DISLIKE: "LIKE_DISLIKE",
     ADD_IMAGE: "ADD_IMAGE",
     ADD_USER: "ADD_USER",

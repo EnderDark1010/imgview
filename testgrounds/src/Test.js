@@ -1,54 +1,54 @@
 import React from "react";
-export default class Test extends React.Component {
+import axios from 'axios';
+export default class Upload extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            tagsForAll: [],
-            fileInput: []
+            tagsForAll: "",
+            tagsPerImage: [],
+            files: []
         };
     }
 
     render() {
-        console.log("rerender")
         let i = 0;
-        const listItems = this.state.tagsForAll.map((tags) => {
-            return <div>
+        const listItems = this.state.tagsPerImage.map((tags) => {
+            return <>
+
+                <img style={{ height: "200px" }} src={URL.createObjectURL(this.state.files[i])}></img>
                 <input id={"id" + i++} type={"text"} value={tags} onChange={evt => this.changeValue(evt)}></input>
-                <img style={{height: "200px"}} src={URL.createObjectURL(this.state.files[i-1])}></img>
-            </div>
+            </>
         }
 
         );
         return (
             <div className='center'>
-                <ul>{listItems}</ul>
                 <div className='paddingTop25'>
-                    <input type={"file"} value={this.state.fileInput} onChange={evt => this.changeFile(evt)} multiple></input>
+                    <input type={"text"} value={this.state.tagsForAll} placeholder="Tags" onChange={evt => this.updateTagsForAll(evt)}></input>
+                    <input type={"file"} value={this.state.fileInput} onChange={evt => this.changeFiles(evt)} multiple></input>
                 </div>
+                <button onClick={this.upload.bind(this)}>Upload</button>
+                {listItems}
             </div>
         );
     }
 
     changeValue(e) {
-        //log target event id
         let id = e.target.id;
         console.log(id);
-        //remove "id" prefix from id
         id = id.substring(2);
-        //id to int
         id = parseInt(id);
 
-        //copy of tagsForAll
-        let tagsForAll = this.state.tagsForAll;
-        tagsForAll[id] = e.target.value;
+        //copy of tagsPerImage
+        let tagsPerImage = this.state.tagsPerImage;
+        tagsPerImage[id] = e.target.value;
         this.setState({
-            tagsForAll: tagsForAll
+            tagsPerImage: tagsPerImage
         });
     }
 
-    changeFile(evt) {
-        const val = evt.target.files[0];
-        console.log(evt.target.files);
+    changeFiles(evt) {
+        console.log(evt.target.va);
         let arr = [];
         //for files in evenet target
         for (let i = 0; i < evt.target.files.length; i++) {
@@ -57,8 +57,37 @@ export default class Test extends React.Component {
         this.setState({
             fileInput: evt.target.value,
             files: evt.target.files,
-            tagsForAll: arr
+            tagsPerImage: arr
         });
     }
+    updateTagsForAll(evt) {
+        const val = evt.target.value;
+        this.setState({
+            tagsForAll: val
+        });
+    }
+    logAll() {
+        //log state
+        console.log(this.state);
+    }
+    upload() {
+        for (let i = 0; i < this.state.files.length; i++) {
 
+            const reader = new FileReader();
+            const imgRaw = this.state.files[i];
+            const tags = this.state.tagsForAll + " " + this.state.tagsPerImage[i];
+            reader.readAsDataURL(imgRaw);
+            reader.onload = function () {
+                axios({
+                    method: "post",
+                    url: "http://localhost:5000/test",
+                    data: {
+                        tags: tags,
+                        dataUri: reader.result
+                    }
+                })
+
+            }
+        }
+    }
 }
