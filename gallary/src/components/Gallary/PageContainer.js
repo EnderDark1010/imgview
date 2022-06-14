@@ -1,18 +1,19 @@
 import React from 'react';
 import axios from 'axios';
 import Image from './Image'
-import { GETREQUEST, getRequest, ORDER } from './API';
+import { GETREQUEST, getRequest, ORDER, postRequest,POSTREQUEST } from './API';
 const api = axios.create({
-  baseURL: 'http://192.168.1.114:5000',
+  baseURL: 'http://10.62.109.93:5000',
 })
 //contains a searchbar and  imageContainers
 //once imagecontainer data is base on what is in the searchbar
 //https://fsymbols.com/generators/carty/
 export default class PageContainer extends React.Component {
 
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
     this.setActiveImageSrc = this.setActiveImageSrc.bind(this);
+    this.handleLike = this.handleLike.bind(this);
     this.removeImg = this.removeImg.bind(this);
     this.handleInput = this.handleInput.bind(this);
     this.nextPage = this.nextPage.bind(this);
@@ -81,7 +82,8 @@ export default class PageContainer extends React.Component {
 
         <div className="gallery">
           {this.state.images.map(item => {
-            return <Image key={item.id} imgsm={item.imgsm} id={item.id} score={item.score} prefix={item.prefixs} onClick={this.setActiveImageSrc} onButtonClick={this.handleScore} />;
+            console.log(item.liked);
+            return <Image isLiked={item.liked} key={item.id} imgsm={item.imgsm} id={item.id} score={item.score} prefix={item.prefixs} onClick={this.setActiveImageSrc} onButtonClick={this.handleLike} />;
           })}
         </div>
       </div>
@@ -104,7 +106,8 @@ export default class PageContainer extends React.Component {
     }else{
       tags = this.state.tags;
     }
-    let data = await getRequest(GETREQUEST.MULTIPLE_IMAGES,{order:endPoint,tags:tags,pageNumber:this.pageNumber});
+    console.log(tags);
+    let data = await getRequest(GETREQUEST.MULTIPLE_IMAGES,{order:endPoint,tags:tags,pageNumber:this.pageNumber,userid:this.props.userID});
     this.setState({
       images: data,
     })
@@ -183,24 +186,9 @@ export default class PageContainer extends React.Component {
   imgRight() {
     this.setActiveImageSrc(this.state.imgIDs[this.state.imgIDs.indexOf(this.state.ActiveImageID) + 1]);
   }
-  handleScore(id, addBool) {
-    if (addBool) {
-      api.post('/plusscore/' + id, {}, {
-        auth: {
-          username: 'master',
-          password: 'master'
-        }
-      })
-    } else {
-      api.post('/minusscore/' + id, {}, {
-        auth: {
-          username: 'master',
-          password: 'master'
-        }
-      })
-    }
-
-
+  handleLike(imgId) {
+    console.log(imgId);
+    postRequest(POSTREQUEST.LIKE_DISLIKE,{imgId:imgId,userId:this.props.userID,});
   }
 
 

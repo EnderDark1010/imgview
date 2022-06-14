@@ -8,8 +8,10 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Layout from "./components/Layout";
 export default class App extends React.Component {
   setIsLoggedIn = this.setIsLoggedIn.bind(this);
+  setUserID= this.setUserID.bind(this);
 
-  state = { isLoggedIn: false };
+  state = { isLoggedIn: false,
+  userID:0 };
 
   componentDidMount() {
     console.log(this.getLoginDataFromLocalStorage());
@@ -23,10 +25,10 @@ export default class App extends React.Component {
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<Layout />}>
-                <Route index element={<PageContainer />} />
-                <Route path="home" element={<PageContainer />} />
+                <Route index element={<PageContainer userID={this.state.userID}/>} />
+                <Route path="home" element={<PageContainer  userID={this.state.userID}/>} />
                 <Route path="Upload" element={<Upload />} />
-                <Route path="Login" element={<Login setIsLoggedIn={this.setIsLoggedIn} />} />
+                <Route path="Login" element={<Login setIsLoggedIn={this.setIsLoggedIn} setUserID={this.setUserID}/>} />
               </Route>
             </Routes>
           </BrowserRouter>
@@ -35,7 +37,7 @@ export default class App extends React.Component {
     } else {
       return (
         <div className="App">
-          <Login setIsLoggedIn={this.setIsLoggedIn} />
+          <Login setIsLoggedIn={this.setIsLoggedIn} setUserID={this.setUserID} />
         </div>
       );
     }
@@ -48,5 +50,8 @@ export default class App extends React.Component {
   setIsLoggedIn(isLoggedIn) {
     this.setState({ isLoggedIn });
     window.localStorage.setItem("isLogedIn", isLoggedIn);
+  }
+  setUserID(userID) {
+    this.setState({ userID });
   }
 }

@@ -1,6 +1,7 @@
 import React from 'react';
 import fetch from 'node-fetch';
 import axios from 'axios';
+import { GETREQUEST, getRequest, POSTREQUEST, postRequest } from '../Gallary/API';
 
 export default class Login extends React.Component {
   constructor(props) {
@@ -20,32 +21,38 @@ export default class Login extends React.Component {
         <button className='marginLeft50' onClick={evt => this.login()}>Login</button>
       </div>
       <div className='paddingTop25'>
-      <button className='' onClick={evt => this.login()}>Create New User</button>
+      <button className='' onClick={evt => this.register()}>Create New User</button>
       </div>
     </div>
       ;
   }
-  login() {
-    console.log("login")
-    axios({
-      method: "post",
-      url: "http://192.168.1.114:5000/login",
-      data: {
-        username: this.state.username,
-        password: this.state.password
-      }
-    }).then(res => {
-      if(res.data.length > 0) {
+  async login() {
+    let data= await getRequest(GETREQUEST.VERIFY_USER_EXISTS, {userName: this.state.username, password: this.state.password});
+    console.log(data[0]);
+      if(data.length > 0) {
         console.log("login success");
         this.props.setIsLoggedIn(true);
+        this.props.setUserID(data[0].id);
       }else{
         console.log("login failed");
       }
-    });
   }
 
   logout() {
     this.props.setIsLoggedIn(false);
+    this.props.setUserID(0);
+  }
+
+  async register() {
+    let data=  await postRequest(POSTREQUEST.ADD_USER, {userName: this.state.username, password: this.state.password});
+    console.log(data);
+    if(data.data.affectedRows==1) {
+      console.log("register success");
+      this.props.setIsLoggedIn(true);
+      this.props.setUserID(data.data.inertId);
+    }else{
+      console.log("failed")
+    }
   }
 
   updateUsername(evt) {

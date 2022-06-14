@@ -82,7 +82,7 @@ export default class Upload extends React.Component {
             reader.onload = function () {
                 axios({
                     method: "post",
-                    url: "http://192.168.1.114:5000/upload",
+                    url: "http://10.62.109.93:5000/upload",
                     data: {
                         tags: tagsArray,
                         dataUri: reader.result

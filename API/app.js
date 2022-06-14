@@ -16,7 +16,7 @@ const imagesPerPage = 30;
 // my sql
 const pool = mysql.createPool({
   connectionLimit: 10,
-  host: "192.168.1.114",
+  host: "10.62.109.93",
   user: "master",
   password: "master",
   database: "imgviever",
@@ -34,7 +34,10 @@ const ORDER = {
 
 let tagIdMap = new Map();
 
-//get full image by id
+/*
+ * endpoint returns a specifc image from the database based on the given ID
+ */
+
 app.get("/img/id/:id", (req, res) => {
   let id = req.params.id;
   pool.getConnection((err, connection) => {
@@ -54,31 +57,56 @@ app.get("/img/id/:id", (req, res) => {
   });
 });
 
-//Add Or Remove favorites
+/*
+ * Endpoint to set if a image is liked by a specific user
+ */
 app.post("/like", (req, res) => {
-  const { addOrRemove, imgId, userID } = req.body;
+  let { imgID, userID } = req.body;
+
   pool.getConnection((err, connection) => {
     if (err) throw err;
 
     connection.query(
-      `UPDATE image SET score = score + ${1 + Math.random() * 0.1
-      } WHERE id = ${imgId}`,
+      `SELECT * FROM favorites WHERE merge_key="${userID + "-" + imgID}"`,
       (err, rows) => {
-        connection.release();
-        if (!err) {
-          res.send(rows);
+        if (err) throw err;
+        if (rows.length == 0) {
+          connection.query(
+            `INSERT INTO favorites (user_id,image_id,merge_key) values (${userID},${imgID},"${
+              userID + "-" + imgID
+            }")`,
+            (err, rows) => {
+              if (err) throw err;
+              res.send(rows);
+              connection.query(
+                `UPDATE image SET score=score+1 WHERE id=${imgID}`,
+                (err, rows) => {}
+              );
+            }
+          );
         } else {
-          res.send(err);
+          connection.query(
+            `DELETE FROM favorites WHERE merge_key="${userID + "-" + imgID}"`,
+            (err, rows) => {
+              if (err) throw err;
+              res.send(rows);
+              connection.query(
+                `UPDATE image SET score=score-1 WHERE id=${imgID}`,
+                (err, rows) => {}
+              );
+            }
+          );
         }
       }
     );
   });
 });
-
-//test
+/*
+ * Endpoint to add an image to the database
+ */
 app.post("/upload", (req, res) => {
   let { tags, dataUri } = req.body;
-  tags = tags.filter(e => e);
+  tags = tags.filter((e) => e);
   let resizedImg;
   let resizedMime;
   let insertId;
@@ -105,7 +133,6 @@ app.post("/upload", (req, res) => {
                                  '${prefix}',
                                  '');`,
             (err, rows) => {
-
               if (!err) {
                 insertId = rows.insertId;
                 for (let i = 0; i < tags.length; i++) {
@@ -114,7 +141,7 @@ app.post("/upload", (req, res) => {
                       `INSERT INTO tag (name) VALUES ('${tags[i]}')`,
                       (err, rows) => {
                         if (!err) {
-                          console.log(rows.insertId + " line 118")
+                          console.log(rows.insertId + " line 118");
                           tagIdMap.set(tags[i], rows.insertId);
                           connection.query(
                             `INSERT INTO imagetag (img_id, tag_id) VALUES (${insertId}, ${rows.insertId})`,
@@ -124,15 +151,18 @@ app.post("/upload", (req, res) => {
                               } else {
                                 console.log(err);
                               }
-                            });
+                            }
+                          );
                         } else {
                           console.log(err);
                         }
                       }
                     );
-                  }else{
+                  } else {
                     connection.query(
-                      `INSERT INTO imagetag (img_id, tag_id) VALUES (${insertId}, ${tagIdMap.get(tags[i])})`,
+                      `INSERT INTO imagetag (img_id, tag_id) VALUES (${insertId}, ${tagIdMap.get(
+                        tags[i]
+                      )})`,
                       (err, rows) => {
                         if (!err) {
                         } else {
@@ -142,7 +172,7 @@ app.post("/upload", (req, res) => {
                     );
                   }
                 }
-                
+
                 connection.release();
               } else {
                 console.log(err);
@@ -155,9 +185,11 @@ app.post("/upload", (req, res) => {
     });
 });
 
-//login
-app.post("/login", (req, res) => {
-  let { username, password } = req.body;
+/**
+ * Endpoint to check if a user with specifc username and password exists
+ */
+app.get("/login/:username/:password", (req, res) => {
+  let { username, password } = req.params;
   pool.getConnection((err, connection) => {
     if (err) throw err;
     connection.query(
@@ -174,17 +206,43 @@ app.post("/login", (req, res) => {
   });
 });
 
-app.get("/query/:order/:tags/:page", (req, res) => {
-  let page = req.params.page;
-  let tagString = req.params.tags;
-  let order = req.params.order;
-  let tags = tagString.split(",");
+/*
+ * Endpoint to add a user to the database
+ */
+app.post("/register", (req, res) => {
+  let { username, password } = req.body;
+  pool.getConnection((err, connection) => {
+    if (err) throw err;
+    connection.query(
+      `INSERT INTO user (username, password) VALUES ('${username}', '${password}')`,
+      (err, rows) => {
+        connection.release();
+        if (!err) {
+          res.send(rows);
+        } else {
+          res.send(rows);
+        }
+      }
+    );
+  });
+});
+
+/*
+ * Endpoint to get a certain ammount of images from the database in a certain order.
+ * May or may not be filtered by tags.
+ */
+app.get("/query/:order/:tags/:page/:userid", (req, res) => {
+  let { order, tags, page, userid } = req.params;
+  tags = tags.split(",");
   let SqlQuery =
-    "SELECT img.id, img.score ,img.prefixs ,TO_BASE64(img.imgsm) as imgsm FROM image as img ";
+    "SELECT img.id, img.score ,img.prefixs ,TO_BASE64(img.imgsm) as imgsm, " +
+    "IF(IFNULL(favorites.id,0),'True','False') as liked " +
+    "FROM image as img " +
+    `LEFT JOIN favorites ON favorites.user_id=${userid} and favorites.image_id=img.id `;
 
   pool.getConnection((err, connection) => {
     if (err) throw err;
-    if (tagString !== "none") {
+    if (tags[0] !== "none") {
       let i = 0;
       tags.forEach((tag) => {
         SqlQuery += `JOIN imagetag as t${i} ON t${i}.img_id=img.id AND t${i}.tag_id=${tagIdMap.get(
@@ -199,10 +257,9 @@ app.get("/query/:order/:tags/:page", (req, res) => {
       console.log("includes");
       SqlQuery = SqlQuery.replace("ORDER BY undefined", "ORDER BY RAND()");
     }
-    console.log(SqlQuery);
     connection.query(
       SqlQuery +
-      ` LIMIT ${page * imagesPerPage - imagesPerPage},${imagesPerPage}`,
+        ` LIMIT ${page * imagesPerPage - imagesPerPage},${imagesPerPage}`,
       (err, rows) => {
         connection.release();
         if (!err) {
@@ -215,6 +272,11 @@ app.get("/query/:order/:tags/:page", (req, res) => {
   });
 });
 
+/**
+ * Used to convert a dataUri to a blob
+ * @param {*} dataURI
+ * @returns  the generated blob
+ */
 function dataURItoBlob(dataURI) {
   var byteString = atob(dataURI.split(",")[1]);
   var ab = new ArrayBuffer(byteString.length);
@@ -226,16 +288,24 @@ function dataURItoBlob(dataURI) {
   return blob;
 }
 
+/**
+ * used to get the mime Type of a dataUri
+ * @param {*} dataURI
+ * @returns the mime type
+ */
 function getMimeTypeFromDataURI(dataURI) {
   return dataURI.split(",")[0] + ",";
 }
 
+/*
+ * Set tags from database to tagIdMap
+ */
 app.listen(port, () => console.log("listen on port:" + port));
 pool.getConnection((err, connection) => {
   connection.query(`SELECT id,name FROM tag`, (err, rows) => {
     rows.forEach((row) => {
       tagIdMap.set(row.name, row.id);
     });
-    console.log(tagIdMap)
+    console.log(tagIdMap);
   });
 });

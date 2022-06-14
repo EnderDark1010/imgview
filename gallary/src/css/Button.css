@@ -48,6 +48,11 @@ input[type=text].inputUpload{
     width: 70% !important;
 }
 
+.likeButton{
+    height: 2rem;
+    width: 2rem;
+}
+
 @media (max-width: 768px) {
     input[type=text]{
         width: 60%;

@@ -1,5 +1,5 @@
 import axios from 'axios';
-const BASE_URL = 'http://192.168.1.114:5000/';
+const BASE_URL = 'http://10.62.109.93:5000/';
 export function postRequest(type, data) {
 switch(type){
     case POSTREQUEST.ADD_USER:

@@ -10,37 +10,28 @@ const element = <Welcome name="Sara" />;
 export default class Image extends React.Component {
     constructor(props){
         super(props);
-        this.state ={score:this.props.score};
-        this.plus = this.plus.bind(this);
-        this.minus = this.minus.bind(this);
+        this.state ={isLiked:props.isLiked==='true'};
     }
+    
 
     render() {
-      
+      console.log(typeof this.state.isLiked);
 
       return <div className='img-container'>
         <img onClick={()=>this.props.onClick(this.props.id)}  src={this.toImgLink()} />
         
-        <div><br/>
-          <button onClick={this.minus}>-</button>
-          &nbsp;&nbsp;
-          Score({Math.round(this.state.score)})
-          &nbsp;&nbsp;
-          <button onClick={this.plus}>+</button></div>
+        <div>
+          <input className='likeButton' type={"image"} onClick={(e)=>this.handleLike()} src={this.state.isLiked?"https://i.imgur.com/UvHANik.png":"https://i.imgur.com/pr5kEC6.png"}/>
+          
         
+      </div>
       </div>
       ;
     }
 
-    plus(){
-      this.props.onButtonClick(this.props.id,true);
-      this.setState({score:this.state.score+1});
-    }
-    minus(){
-      if(this.state.score !=0){
-        this.props.onButtonClick(this.props.id,false);
-        this.setState({score:this.state.score-1});
-      }
+    handleLike(){
+      this.props.onButtonClick(this.props.id);
+      this.setState({isLiked:!this.state.isLiked});
     }
     toImgLink(){
       return this.props.prefix+this.props.imgsm;
