@@ -1,7 +1,7 @@
 import React from 'react';
 import axios from 'axios';
 import Image from './Image'
-import { GETREQUEST, getRequest, ORDER, postRequest,POSTREQUEST } from './API';
+import { GETREQUEST, getRequest, ORDER, postRequest,POSTREQUEST } from '../../API';
 const api = axios.create({
   baseURL: 'http://10.62.109.93:5000',
 })
@@ -82,6 +82,7 @@ export default class PageContainer extends React.Component {
 
         <div className="gallery">
           {this.state.images.map(item => {
+            console.log(item);
             console.log(item.liked);
             return <Image isLiked={item.liked} key={item.id} imgsm={item.imgsm} id={item.id} score={item.score} prefix={item.prefixs} onClick={this.setActiveImageSrc} onButtonClick={this.handleLike} />;
           })}
@@ -186,7 +187,7 @@ export default class PageContainer extends React.Component {
   imgRight() {
     this.setActiveImageSrc(this.state.imgIDs[this.state.imgIDs.indexOf(this.state.ActiveImageID) + 1]);
   }
-  handleLike(imgId) {
+  async handleLike(imgId) {
     console.log(imgId);
     postRequest(POSTREQUEST.LIKE_DISLIKE,{imgId:imgId,userId:this.props.userID,});
   }

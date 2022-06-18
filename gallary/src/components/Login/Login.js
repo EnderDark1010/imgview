@@ -1,7 +1,7 @@
 import React from 'react';
 import fetch from 'node-fetch';
 import axios from 'axios';
-import { GETREQUEST, getRequest, POSTREQUEST, postRequest } from '../Gallary/API';
+import { GETREQUEST, getRequest, POSTREQUEST, postRequest } from '../../API';
 
 export default class Login extends React.Component {
   constructor(props) {
@@ -18,24 +18,13 @@ export default class Login extends React.Component {
       <div className='paddingTop25'> <input type={"text"} value={this.state.password} onChange={evt => this.updatePassword(evt)} placeholder="password"></input></div>
       <div className='paddingTop25'>
         <button className='marginRight50' onClick={evt => this.logout()}>Logout</button>
-        <button className='marginLeft50' onClick={evt => this.login()}>Login</button>
+        <button className='marginLeft50' onClick={evt => this.props.login(this.state.username,this.state.password)}>Login</button>
       </div>
       <div className='paddingTop25'>
       <button className='' onClick={evt => this.register()}>Create New User</button>
       </div>
     </div>
       ;
-  }
-  async login() {
-    let data= await getRequest(GETREQUEST.VERIFY_USER_EXISTS, {userName: this.state.username, password: this.state.password});
-    console.log(data[0]);
-      if(data.length > 0) {
-        console.log("login success");
-        this.props.setIsLoggedIn(true);
-        this.props.setUserID(data[0].id);
-      }else{
-        console.log("login failed");
-      }
   }
 
   logout() {

@@ -1,12 +1,14 @@
 import React from "react";
 import axios from 'axios';
+import SETTINGS from "../../variableSettings";
 export default class Upload extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
             tagsForAll: "",
             tagsPerImage: [],
-            files: []
+            files: [],
+            objectUrls: [],
         };
     }
 
@@ -14,7 +16,7 @@ export default class Upload extends React.Component {
         let i = 0;
         const listItems = this.state.tagsPerImage.map((tags) => {
             return <div>
-                <img style={{ height: "200px" }} src={URL.createObjectURL(this.state.files[i])}></img><br/>
+                <img style={{ height: "200px" }} src={this.state.objectUrls[i]}></img><br/>
                 <input id={"id" + i++} className="inputUpload" type={"text"} value={tags} onChange={evt => this.changeValue(evt)}></input>
             </div>
         }
@@ -49,17 +51,21 @@ export default class Upload extends React.Component {
 
     changeFiles(evt) {
         console.log(evt.target.va);
-        let arr = [];
+        let tagsPerImg = [];
+        let objectUrls = [];
         //for files in evenet target
         for (let i = 0; i < evt.target.files.length; i++) {
-            arr.push("");
+            tagsPerImg.push("");
+            objectUrls.push(URL.createObjectURL(evt.target.files[i]));
         }
         this.setState({
             fileInput: evt.target.value,
             files: evt.target.files,
-            tagsPerImage: arr
+            tagsPerImage: tagsPerImg,
+            objectUrls: objectUrls
         });
     }
+
     updateTagsForAll(evt) {
         const val = evt.target.value;
         this.setState({
@@ -79,10 +85,11 @@ export default class Upload extends React.Component {
             //split tags into array
             const tagsArray = tags.split(",");
             reader.readAsDataURL(imgRaw);
+            console.log("upload"+i)
             reader.onload = function () {
                 axios({
                     method: "post",
-                    url: "http://10.62.109.93:5000/upload",
+                    url: "http://"+SETTINGS.ip+":5000/upload",
                     data: {
                         tags: tagsArray,
                         dataUri: reader.result

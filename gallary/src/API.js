@@ -1,5 +1,6 @@
 import axios from "axios";
-const BASE_URL = "http://10.62.109.93:5000/";
+import SETTINGS from "./variableSettings";
+const BASE_URL = "http://"+SETTINGS.ip+":5000/";
 //File that contains function to access the API more easily
 
 /**
@@ -61,9 +62,8 @@ export async function getRequest(type, data) {
       break;
     case GETREQUEST.FAVORITES:
       URL = "favorites";
-      //todo
-      formData.append("pageNumber", data.pageNumber);
-      formData.append("uID", data.userID);
+      URL += `query/${ORDER[data.order]}/${data.tags}/${data.pageNumber}/${data.userid}`;
+
       break;
       case GETREQUEST.VERIFY_USER_EXISTS:
           URL +=`login/${data.userName}/${data.password}`;

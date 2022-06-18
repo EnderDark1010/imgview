@@ -10,12 +10,11 @@ const element = <Welcome name="Sara" />;
 export default class Image extends React.Component {
     constructor(props){
         super(props);
-        this.state ={isLiked:props.isLiked==='true'};
+        this.state ={isLiked:props.isLiked==='True'};
     }
     
 
     render() {
-      console.log(typeof this.state.isLiked);
 
       return <div className='img-container'>
         <img onClick={()=>this.props.onClick(this.props.id)}  src={this.toImgLink()} />
@@ -37,5 +36,3 @@ export default class Image extends React.Component {
       return this.props.prefix+this.props.imgsm;
     }
   }
-
-  //

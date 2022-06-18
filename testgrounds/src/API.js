@@ -1,19 +1,19 @@
 import axios from 'axios';
-const BASE_URL = 'http://10.62.109.93:5000/';
+import { SETTINGS } from '../../settings';
+const BASE_URL = 'http://' + SETTINGS.ip + ':5000/';
 export function postRequest(type, data) {
-switch(type){
-    case POSTREQUEST.ADD_USER:
-        break;
-    case POSTREQUEST.ADD_IMAGE:
-        
-        break;
-    case POSTREQUEST.LIKE_DISLIKE:
-        break;
-}
+    switch (type) {
+        case POSTREQUEST.ADD_USER:
+            break;
+        case POSTREQUEST.ADD_IMAGE:
+            break;
+        case POSTREQUEST.LIKE_DISLIKE:
+            break;
+    }
 }
 
-export async  function getRequest(type, data) {
-    let URL="";
+export async function getRequest(type, data) {
+    let URL = "";
     let formData = new FormData();
     switch (type) {
         case GETREQUEST.MULTIPLE_IMAGES:
@@ -21,10 +21,10 @@ export async  function getRequest(type, data) {
             URL += `query/${ORDER[data.order]}/${data.tags}/${data.pageNumber}`;
             break;
         case GETREQUEST.SINGLE_IMAGE:
-            URL = "img/id/"+data.id;
+            URL = "img/id/" + data.id;
             break;
         case GETREQUEST.FAVORITES:
-            URL= "favorites";
+            URL = "favorites";
             //todo
             formData.append('pageNumber', data.pageNumber);
             formData.append('uID', data.userID);
@@ -36,13 +36,13 @@ export async  function getRequest(type, data) {
             formData.append('password', data.password);
             break;
     }
-   let retData;
-   await axios({
+    let retData;
+    await axios({
         method: "get",
         url: BASE_URL + URL,
-        
+
     }).then(res => {
-        retData= res.data;
+        retData = res.data;
     })
 
     return retData;

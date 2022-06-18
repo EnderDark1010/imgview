@@ -6,6 +6,7 @@ const cors = require("cors");
 const { raw } = require("body-parser");
 const app = express();
 const sharp = require("sharp");
+const SETTINGS = require("../gallary/src/variableSettings");
 const port = process.env.PORT || 5000;
 app.use(cors());
 
@@ -15,8 +16,9 @@ app.use(bodyParser.urlencoded({ extended: true, limit: "500mb" }));
 const imagesPerPage = 30;
 // my sql
 const pool = mysql.createPool({
-  connectionLimit: 10,
-  host: "10.62.109.93",
+  connectionLimit: 50,
+  timeout: 10000,
+  host: SETTINGS.ip,
   user: "master",
   password: "master",
   database: "imgviever",
@@ -99,6 +101,7 @@ app.post("/like", (req, res) => {
         }
       }
     );
+    connection.release();
   });
 });
 /*
@@ -173,13 +176,14 @@ app.post("/upload", (req, res) => {
                   }
                 }
 
-                connection.release();
+                
               } else {
                 console.log(err);
                 res.send(err);
               }
             }
           );
+          connection.release();
         });
       }
     });
@@ -239,6 +243,52 @@ app.get("/query/:order/:tags/:page/:userid", (req, res) => {
     "IF(IFNULL(favorites.id,0),'True','False') as liked " +
     "FROM image as img " +
     `LEFT JOIN favorites ON favorites.user_id=${userid} and favorites.image_id=img.id `;
+
+  pool.getConnection((err, connection) => {
+    if (err) throw err;
+    if (tags[0] !== "none") {
+      let i = 0;
+      tags.forEach((tag) => {
+        SqlQuery += `JOIN imagetag as t${i} ON t${i}.img_id=img.id AND t${i}.tag_id=${tagIdMap.get(
+          tag
+        )} `;
+        i++;
+      });
+    }
+    //add order to query
+    SqlQuery += `ORDER BY ${ORDER[order]} `;
+    if (SqlQuery.includes("ORDER BY undefined")) {
+      console.log("includes");
+      SqlQuery = SqlQuery.replace("ORDER BY undefined", "ORDER BY RAND()");
+    }
+    console.log(SqlQuery);
+    connection.query(
+      SqlQuery +
+        ` LIMIT ${page * imagesPerPage - imagesPerPage},${imagesPerPage}`,
+      (err, rows) => {
+        connection.release();
+        if (!err) {
+          res.send(rows);
+        } else {
+          console.log(err);
+        }
+      }
+    );
+  });
+});
+
+/*
+ * Endpoint to get a certain ammount of images from the database in a certain order.
+ * May or may not be filtered by tags.
+ */
+app.get("/favorites/:order/:tags/:page/:userid", (req, res) => {
+  let { order, tags, page, userid } = req.params;
+  tags = tags.split(",");
+  let SqlQuery =
+    "SELECT img.id, img.score ,img.prefixs ,TO_BASE64(img.imgsm) as imgsm, " +
+    "IF(IFNULL(favorites.id,0),'True','False') as liked " +
+    "FROM image as img " +
+    `JOIN favorites ON favorites.user_id=${userid} and favorites.image_id=img.id `;
 
   pool.getConnection((err, connection) => {
     if (err) throw err;
