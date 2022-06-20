@@ -92,11 +92,6 @@ body{
   transform: translate(-50%,-50%);
 }
 
-.nav{
-  flex: 0.5;
-  border-radius: 50px;
-}
-
 .page{
   /* display: flex; */
   margin: 2rem;
@@ -169,4 +164,8 @@ ul{
 
 .paddingTop25{
   padding-top: 25px;
+}
+.logo{
+  height: 6vh;
+  box-shadow: none;
 }

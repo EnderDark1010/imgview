@@ -50,7 +50,7 @@ export default class PageContainer extends React.Component {
     return <div className='pageContainer' tabIndex="0" onKeyDown={this.handleInput}>
       {modal}
       <div className='page'>
-        <div className='nav'>
+        <div className>
           <ul>
 
             <div className='navbarElement'>

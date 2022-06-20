@@ -6,16 +6,19 @@ import Login from "./components/Login/Login";
 import Upload from "./components/Upload/Upload";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Layout from "./components/Layout";
+import { GETREQUEST, getRequest } from "./API";
 export default class App extends React.Component {
   setIsLoggedIn = this.setIsLoggedIn.bind(this);
-  setUserID= this.setUserID.bind(this);
-
-  state = { isLoggedIn: false,
-  userID:0 };
+  setUserID = this.setUserID.bind(this);
+  login= this.login.bind(this);
+  state = {
+    isLoggedIn: false,
+    userID: 0
+  };
 
   componentDidMount() {
-    console.log(this.getLoginDataFromLocalStorage());
-    this.setState({ isLoggedIn: false });
+    console.log("componentDidMount");
+    this.tryLoginUsingLocalStorage();
   }
 
   render() {
@@ -24,11 +27,10 @@ export default class App extends React.Component {
         <div className="App">
           <BrowserRouter>
             <Routes>
-              <Route path="/" element={<Layout />}>
-                <Route index element={<PageContainer userID={this.state.userID}/>} />
-                <Route path="home" element={<PageContainer  userID={this.state.userID}/>} />
+              <Route path="/" element={<Layout logout={this.logout.bind(this)}/>}>
+                <Route index element={<PageContainer userID={this.state.userID} />} />
+                <Route path="home" element={<PageContainer userID={this.state.userID} />} />
                 <Route path="Upload" element={<Upload />} />
-                <Route path="Login" element={<Login setIsLoggedIn={this.setIsLoggedIn} setUserID={this.setUserID}/>} />
               </Route>
             </Routes>
           </BrowserRouter>
@@ -37,15 +39,12 @@ export default class App extends React.Component {
     } else {
       return (
         <div className="App">
-          <Login setIsLoggedIn={this.setIsLoggedIn} setUserID={this.setUserID} />
+          <Login login={this.login}  setUserID={this.setUserID} />
         </div>
       );
     }
   }
 
-  getLoginDataFromLocalStorage() {
-    return window.localStorage.getItem("isLogedIn");
-  }
 
   setIsLoggedIn(isLoggedIn) {
     this.setState({ isLoggedIn });
@@ -53,5 +52,30 @@ export default class App extends React.Component {
   }
   setUserID(userID) {
     this.setState({ userID });
+  }
+
+  tryLoginUsingLocalStorage() {
+    console.log(window.localStorage);
+    const userName = window.localStorage.getItem("userName");
+    const password = window.localStorage.getItem("password");
+    this.login(userName, password);
+  }
+  async login(userName, password) {
+    window.localStorage.setItem("userName", userName);
+    window.localStorage.setItem("password", password);
+    let data = await getRequest(GETREQUEST.VERIFY_USER_EXISTS, { userName, password });
+    if (data.length > 0) {
+      console.log("login success");
+      this.setIsLoggedIn(true);
+      this.setUserID(data[0].id);
+    } else {
+      console.log("login failed");
+    }
+  }
+
+  async logout(){
+    window.localStorage.setItem("userName", "");
+    window.localStorage.setItem("password", "");
+    this.setIsLoggedIn(false);
   }
 }
