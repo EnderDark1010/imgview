@@ -21,6 +21,11 @@ export async function postRequest(type, data) {
         }
       break;
     case POSTREQUEST.ADD_IMAGE:
+      URL += "upload";
+        formdata={
+            tags: data.tags,
+            dataUri: data.dataUri
+        }
       break;
     case POSTREQUEST.LIKE_DISLIKE:
         URL+="like";
@@ -51,10 +56,8 @@ return retData;
 export async function getRequest(type, data) {
     console.log(data);
   let URL = "";
-  let formData = new FormData();
   switch (type) {
     case GETREQUEST.MULTIPLE_IMAGES:
-      console.log("here");
       URL += `query/${ORDER[data.order]}/${data.tags}/${data.pageNumber}/${data.userid}`;
       break;
     case GETREQUEST.SINGLE_IMAGE:

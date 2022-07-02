@@ -1,15 +1,34 @@
 import axios from 'axios';
 import { SETTINGS } from '../../settings';
 const BASE_URL = 'http://' + SETTINGS.ip + ':5000/';
+
 export function postRequest(type, data) {
+    let URL = "";
+    let formData = new FormData();
     switch (type) {
         case POSTREQUEST.ADD_USER:
             break;
         case POSTREQUEST.ADD_IMAGE:
+            URL += "upload";
+            formData.append("tags", data.tags);
+            formData.append("dataUri", data.dataUri);
+                        
             break;
         case POSTREQUEST.LIKE_DISLIKE:
             break;
     }
+
+    let retData;
+    await axios({
+        method: "post",
+        url: BASE_URL + URL,
+        data: formData
+    }).then(res => {
+        retData = res.data;
+    })
+    return retData;
+
+
 }
 
 export async function getRequest(type, data) {

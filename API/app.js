@@ -17,7 +17,7 @@ const imagesPerPage = 30;
 // my sql
 const pool = mysql.createPool({
   connectionLimit: 50,
-  timeout: 10000,
+  timeout: 5000,
   host: SETTINGS.ip,
   user: "master",
   password: "master",
@@ -111,14 +111,13 @@ app.post("/upload", (req, res) => {
   let { tags, dataUri } = req.body;
   tags = tags.filter((e) => e);
   let resizedImg;
-  let resizedMime;
   let insertId;
   let blob = dataURItoBlob(dataUri);
   let prefix = getMimeTypeFromDataURI(dataUri);
   //remove prefix from datauri
   dataUri = dataUri.replace(prefix, "");
   sharp(blob)
-    .resize(400, undefined)
+    .resize(200, undefined)
     .toBuffer((err, buffer) => {
       if (err) {
         console.log(err);
@@ -137,6 +136,7 @@ app.post("/upload", (req, res) => {
                                  '');`,
             (err, rows) => {
               if (!err) {
+                res.send(rows);
                 insertId = rows.insertId;
                 for (let i = 0; i < tags.length; i++) {
                   if (!tagIdMap.has(tags[i])) {
@@ -175,8 +175,6 @@ app.post("/upload", (req, res) => {
                     );
                   }
                 }
-
-                
               } else {
                 console.log(err);
                 res.send(err);
@@ -258,7 +256,6 @@ app.get("/query/:order/:tags/:page/:userid", (req, res) => {
     //add order to query
     SqlQuery += `ORDER BY ${ORDER[order]} `;
     if (SqlQuery.includes("ORDER BY undefined")) {
-      console.log("includes");
       SqlQuery = SqlQuery.replace("ORDER BY undefined", "ORDER BY RAND()");
     }
     console.log(SqlQuery);
@@ -304,7 +301,6 @@ app.get("/favorites/:order/:tags/:page/:userid", (req, res) => {
     //add order to query
     SqlQuery += `ORDER BY ${ORDER[order]} `;
     if (SqlQuery.includes("ORDER BY undefined")) {
-      console.log("includes");
       SqlQuery = SqlQuery.replace("ORDER BY undefined", "ORDER BY RAND()");
     }
     connection.query(
@@ -356,6 +352,5 @@ pool.getConnection((err, connection) => {
     rows.forEach((row) => {
       tagIdMap.set(row.name, row.id);
     });
-    console.log(tagIdMap);
   });
 });

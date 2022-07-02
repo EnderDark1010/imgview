@@ -1,10 +1,6 @@
 import React from 'react';
-import axios from 'axios';
 import Image from './Image'
 import { GETREQUEST, getRequest, ORDER, postRequest,POSTREQUEST } from '../../API';
-const api = axios.create({
-  baseURL: 'http://10.62.109.93:5000',
-})
 //contains a searchbar and  imageContainers
 //once imagecontainer data is base on what is in the searchbar
 //https://fsymbols.com/generators/carty/
@@ -29,7 +25,6 @@ export default class PageContainer extends React.Component {
     ActiveImageID: 0,
     imgIDs: [],
     search: '',
-    pageNumber: 1,
     tags: '',
     imgEndpoint: 'sortscoredown'
   }
@@ -39,6 +34,7 @@ export default class PageContainer extends React.Component {
 
   render() {
     let modal;
+    let pageNavigation;
     if (this.state.isClicked) {
       modal = <div className='modal' onClick={this.removeImg}>
         <img id='fullImage' className='fullImage' src={this.state.ActiveImageSrc} />
@@ -47,18 +43,30 @@ export default class PageContainer extends React.Component {
     else {
       modal = '';
     }
+    //if images loaded
+    if (this.state.images.length > 0) {
+      pageNavigation=<div className='navbarElement pageNavigation'>
+              <button className='button-arrow' onClick={this.lastPage}>&lt;&lt;-</button>&nbsp;
+              <button className='button-arrow' onClick={this.lastPage}>&lt;-</button>
+              &nbsp;&nbsp;Current Page: {this.pageNumber}&nbsp;&nbsp;
+              <button className='button-arrow' onClick={this.nextPage}>-&gt;</button>&nbsp;
+              <button className='button-arrow' onClick={this.nextPage}>-&gt;&gt;</button>
+            </div>
+    }
+    else {
+      pageNavigation = '';
+    }
     return <div className='pageContainer' tabIndex="0" onKeyDown={this.handleInput}>
       {modal}
       <div className='page'>
-        <div className>
           <ul>
 
-            <div className='navbarElement'>
+            <div className='search-item'>
             <label for="tagInput">Tags:</label>
               <input name='tagInput' type='text' placeholder='tag1,tag2,....' value={this.state.tags} onChange={evt => this.updateSerchTags(evt)}></input>
               <button onClick={this.clickSearch} >Search</button>
             </div>
-            <div className='navbarElement'>
+            <div className='search-item'>
             <label for="orderSelection">Orderd by:</label>
             <select name="orderSelection" id="orderSelection" value={this.state.imgEndpoint} onChange={(e)=>this.changeImgSearchOrder(e)}>
               <option value="sortscoreasc">Score Up</option>
@@ -69,21 +77,12 @@ export default class PageContainer extends React.Component {
             </select>
             </div>
             </ul>
-            <div className='navbarElement'>
-              <button onClick={this.lastPage}>&lt;&lt;-</button>
-              <button onClick={this.lastPage}>&lt;-</button>
-              &nbsp;{this.pageNumber}&nbsp;
-              <button onClick={this.nextPage}>-&gt;</button>
-              <button onClick={this.nextPage}>-&gt;&gt;</button>
-            </div>
+            {pageNavigation}
 
             
-        </div>
 
         <div className="gallery">
           {this.state.images.map(item => {
-            console.log(item);
-            console.log(item.liked);
             return <Image isLiked={item.liked} key={item.id} imgsm={item.imgsm} id={item.id} score={item.score} prefix={item.prefixs} onClick={this.setActiveImageSrc} onButtonClick={this.handleLike} />;
           })}
         </div>
@@ -105,7 +104,7 @@ export default class PageContainer extends React.Component {
     if (this.state.tags ==''){
       tags = 'none';
     }else{
-      tags = this.state.tags;
+      tags = this.state.tags.toLowerCase();
     }
     console.log(tags);
     let data = await getRequest(GETREQUEST.MULTIPLE_IMAGES,{order:endPoint,tags:tags,pageNumber:this.pageNumber,userid:this.props.userID});
@@ -188,7 +187,6 @@ export default class PageContainer extends React.Component {
     this.setActiveImageSrc(this.state.imgIDs[this.state.imgIDs.indexOf(this.state.ActiveImageID) + 1]);
   }
   async handleLike(imgId) {
-    console.log(imgId);
     postRequest(POSTREQUEST.LIKE_DISLIKE,{imgId:imgId,userId:this.props.userID,});
   }
 
@@ -209,6 +207,7 @@ export default class PageContainer extends React.Component {
   ╚═╝░░░░░░╚═════╝░╚═╝░░╚══╝░╚════╝░░░░╚═╝░░░╚═╝░╚════╝░╚═╝░░╚══╝╚═════╝░
   */
   clickSearch() {
+    this.pageNumber = 1;
     this.setImages();
   }
   changeImgSearchOrder(evt) {

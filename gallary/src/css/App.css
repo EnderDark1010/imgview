@@ -147,6 +147,9 @@ ul{
   padding: 14px 16px ;
   text-decoration: none;
 }
+a{
+  color: #61dafb;
+}
 
 /* Change the link color to #111 (black) on hover */
 .liNav a:hover {
@@ -166,6 +169,54 @@ ul{
   padding-top: 25px;
 }
 .logo{
-  height: 6vh;
+  height: 3.2em;
   box-shadow: none;
+  padding-left: 1em;
+}
+
+.image-likeButton{
+  position: relative;
+  right: 37%;
+  top:3.6vh;
+}
+
+.image-score{
+  position: relative;
+  bottom: 0.5vh;
+  left:7%;
+  text-align: start;
+  display: inline-block;
+}
+.navIcon{
+  height: 2em;
+  border-radius: 0;
+  box-shadow: none;
+  padding-right: 0.5em;
+}
+
+.pageNavigation{
+  color: white;
+}
+
+.button-arrow{
+  font-weight: bold;
+  color: black;
+}
+.infobar-green{
+  background-color: rgb(62, 117, 66);
+  color:black;
+}
+
+.infobar-red{
+background-color: rgb(170, 49, 49);
+color:rgb(29, 12, 12);
+}
+
+p{
+  padding: 0;
+  margin: 0;
+}
+
+.search-item{
+  padding-top: 1em;
 }

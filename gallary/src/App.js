@@ -8,8 +8,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Layout from "./components/Layout";
 import { GETREQUEST, getRequest } from "./API";
 export default class App extends React.Component {
-  setIsLoggedIn = this.setIsLoggedIn.bind(this);
-  setUserID = this.setUserID.bind(this);
+  directLogin= this.directLogin.bind(this);
   login= this.login.bind(this);
   state = {
     isLoggedIn: false,
@@ -39,19 +38,16 @@ export default class App extends React.Component {
     } else {
       return (
         <div className="App">
-          <Login login={this.login}  setUserID={this.setUserID} />
+          <Login login={this.login} directLogin={this.directLogin} />
         </div>
       );
     }
   }
 
 
-  setIsLoggedIn(isLoggedIn) {
-    this.setState({ isLoggedIn });
-    window.localStorage.setItem("isLogedIn", isLoggedIn);
-  }
-  setUserID(userID) {
-    this.setState({ userID });
+
+  directLogin(userID,isLoggedIn) {
+    this.setState({ userID,isLoggedIn });
   }
 
   tryLoginUsingLocalStorage() {
@@ -66,16 +62,19 @@ export default class App extends React.Component {
     let data = await getRequest(GETREQUEST.VERIFY_USER_EXISTS, { userName, password });
     if (data.length > 0) {
       console.log("login success");
-      this.setIsLoggedIn(true);
-      this.setUserID(data[0].id);
+      // this.setIsLoggedIn(true);
+      // this.setUserID(data[0].id);
+      this.directLogin(data[0].id,true)
+      return true;
     } else {
       console.log("login failed");
+      return false;
     }
   }
 
   async logout(){
     window.localStorage.setItem("userName", "");
     window.localStorage.setItem("password", "");
-    this.setIsLoggedIn(false);
+    this.directLogin(0,false)
   }
 }

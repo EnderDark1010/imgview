@@ -1,6 +1,6 @@
 
 const SETTINGS={
-    ip:"192.168.1.114"
+    ip:"localhost"
 }
 
 module.exports = SETTINGS;
