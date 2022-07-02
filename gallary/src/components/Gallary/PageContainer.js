@@ -35,22 +35,30 @@ export default class PageContainer extends React.Component {
   render() {
     let modal;
     let pageNavigation;
+    let buttonGoLeft;
+    let buttonGoRight;
     if (this.state.isClicked) {
       modal = <div className='modal' onClick={this.removeImg}>
-        <img id='fullImage' className='fullImage' src={this.state.ActiveImageSrc} />
+        <img id='fullImage' className='fullImage' src={this.state.ActiveImageSrc}/>
       </div>;
     }
     else {
       modal = '';
     }
+if(this.pageNumber !=1){
+  buttonGoLeft=<button className='button-arrow' onClick={this.lastPage}>&lt;-</button>;
+}
+if(this.state.images.length==30){
+  buttonGoRight=<button className='button-arrow' onClick={this.nextPage}>-&gt;</button>;
+}
     //if images loaded
     if (this.state.images.length > 0) {
       pageNavigation=<div className='navbarElement pageNavigation'>
-              <button className='button-arrow' onClick={this.lastPage}>&lt;&lt;-</button>&nbsp;
-              <button className='button-arrow' onClick={this.lastPage}>&lt;-</button>
+              
+              {buttonGoLeft}
               &nbsp;&nbsp;Current Page: {this.pageNumber}&nbsp;&nbsp;
-              <button className='button-arrow' onClick={this.nextPage}>-&gt;</button>&nbsp;
-              <button className='button-arrow' onClick={this.nextPage}>-&gt;&gt;</button>
+              {buttonGoRight}
+              
             </div>
     }
     else {
@@ -67,7 +75,7 @@ export default class PageContainer extends React.Component {
               <button onClick={this.clickSearch} >Search</button>
             </div>
             <div className='search-item'>
-            <label for="orderSelection">Orderd by:</label>
+            <label for="orderSelection">Ordered  by:</label>
             <select name="orderSelection" id="orderSelection" value={this.state.imgEndpoint} onChange={(e)=>this.changeImgSearchOrder(e)}>
               <option value="sortscoreasc">Score Up</option>
               <option value="sortscoredown">Score Down</option>

@@ -268,6 +268,7 @@ app.get("/query/:order/:tags/:page/:userid", (req, res) => {
           res.send(rows);
         } else {
           console.log(err);
+          res.send([]);
         }
       }
     );

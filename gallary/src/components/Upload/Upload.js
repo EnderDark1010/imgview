@@ -27,6 +27,7 @@ export default class Upload extends React.Component {
             className="inputUpload"
             type={"text"}
             value={tags}
+            placeholder="tags,for,this,picture"
             onChange={(evt) => this.changeValue(evt)}
           ></input>
         </div>
@@ -47,7 +48,7 @@ export default class Upload extends React.Component {
           <input
             type={"text"}
             value={this.state.tagsForAll}
-            placeholder="Tags for all"
+            placeholder="Tags,for,all"
             onChange={(evt) => this.updateTagsForAll(evt)}
           ></input>
           <input

@@ -94,7 +94,7 @@ body{
 
 .page{
   /* display: flex; */
-  margin: 2rem;
+  margin: 0 2rem 2rem 2rem;
   grid-gap: 1rem;
 }
 .pageContainer{
@@ -103,6 +103,7 @@ body{
 
 li{
  margin: 2rem 1.5rem 0 1rem;
+ 
 }
 
 ul{
@@ -219,4 +220,10 @@ p{
 
 .search-item{
   padding-top: 1em;
+}
+nav{
+  padding-bottom: 0;
+}
+.navbar-toggler{
+  margin-right: 2rem;
 }

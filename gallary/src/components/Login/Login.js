@@ -33,7 +33,7 @@ export default class Login extends React.Component {
         <button  onClick={evt => this.login()}>Login</button>
       </div>
       <div className='paddingTop25'>
-      <button className='' onClick={evt => this.register()}>Create New User</button>
+      <button className='' onClick={evt => this.register()}>Register</button>
       </div>
     </div>
       ;
@@ -41,6 +41,7 @@ export default class Login extends React.Component {
 
 
   async login(){
+    if(this.state.username!=="" && this.state.password!==""){
     const result = await this.props.login(this.state.username,this.state.password);
     if(!result){
       this.setState({infoText:["There seems to be a problem",
@@ -49,8 +50,16 @@ export default class Login extends React.Component {
       "- A field is empty\n"],
     msgCSS:false}) 
     }
+  }else{
+    this.setState({infoText:["There seems to be a problem",
+      "possibilities are:" ,
+      "- Username already exists",
+      "- A field is empty\n"],
+    msgCSS:false});
   }
+}
   async register() {
+    if(this.state.username!=="" && this.state.password!==""){
     let data=  await postRequest(POSTREQUEST.ADD_USER, {userName: this.state.username, password: this.state.password});
     console.log(data);
     if(data.data.affectedRows==1) {
@@ -64,6 +73,13 @@ export default class Login extends React.Component {
       "- A field is empty\n"],
     msgCSS:false}) 
     }
+  }else{
+    this.setState({infoText:["There seems to be a problem",
+      "possibilities are:" ,
+      "- Username already exists",
+      "- A field is empty\n"],
+    msgCSS:false}) 
+  }
   }
 
   updateUsername(evt) {
