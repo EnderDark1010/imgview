@@ -1,4 +1,5 @@
-<H6>Running Program<h6/>
+<h1>Running Program</h1>
+
 1. Install DB
 2. 'yarn install' in both directories(API and gallery)
 3. Start Database
