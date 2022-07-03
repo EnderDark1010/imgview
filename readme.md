@@ -1,4 +1,4 @@
-1. 'yarn install' in both directories(API and Gallary)
+1. 'yarn install' in both directories(API and gallery)
 2. Start Database
 3. Start API using 'yarn start'
 4. Start gallery using 'yarn start'<br>
