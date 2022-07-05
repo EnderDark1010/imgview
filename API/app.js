@@ -6,7 +6,7 @@ const cors = require("cors");
 const { raw } = require("body-parser");
 const app = express();
 const sharp = require("sharp");
-const SETTINGS = require("../gallary/src/variableSettings");
+const SETTINGS = require("../gallery/src/variableSettings");
 const port = process.env.PORT || 5000;
 app.use(cors());
 
